@@ -3,5 +3,7 @@
     -batchmode \
     -logfile \
     -nographics \
-    -executeMethod  MyEditorBuild.PerformBuild
+    "$@" \
+    -executeMethod  MyEditorBuild.PerformBuild \
+    
 

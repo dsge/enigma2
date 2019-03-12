@@ -1,6 +1,5 @@
 using UnityEditor;
 
-
 // https://forum.unity.com/threads/build-script-cannot-find-menuitem.535889/#post-3531599
 class MyEditorBuild
 {
