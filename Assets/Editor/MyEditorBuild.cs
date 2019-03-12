@@ -10,6 +10,7 @@ class MyEditorBuild
         buildPlayerOptions.locationPathName = "build/linux/app";
         buildPlayerOptions.target = BuildTarget.StandaloneLinux64;
         buildPlayerOptions.options = BuildOptions.None;
+        //buildPlayerOptions.options = BuildOptions.Development | BuildOptions.AllowDebugging;
         BuildPipeline.BuildPlayer(buildPlayerOptions);
     }
 }
