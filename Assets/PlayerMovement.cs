@@ -5,33 +5,45 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
     GameObject playerCharacter;
-    Vector3? walkingTowards;
+
+    private Vector3 moveTowards = Vector3.zero;
+    private Vector3 moveDirection = Vector3.zero;
+    private CharacterController controller;
+
+    public float speed = 10.0f;
+    public float gravity = 20.0f;
     void Start()
     {
         playerCharacter = GameObject.Find("playerCharacter");
+        controller = GetComponent<CharacterController>();
+        gameObject.transform.position = new Vector3(0, 5, 0);
     }
 
     void Update()
     {
-        if (Input.GetMouseButton(0))
+        if (controller.isGrounded)
         {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            if (Input.GetMouseButton(0))
+            {
+                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
-            RaycastHit hitInfo;
-            if (Physics.Raycast(ray, out hitInfo)){
-                //playerCharacter.transform.lossyScale.y
-                playerCharacter.transform.LookAt(new Vector3(hitInfo.point.x, 0.5f, hitInfo.point.z));
-                walkingTowards = hitInfo.point;
+                RaycastHit hitInfo;
+                if (Physics.Raycast(ray, out hitInfo)){
+                    moveTowards = hitInfo.point;
+                }
             }
-        }
 
-        if (walkingTowards != null) {
-            if (nearEnough((Vector3)walkingTowards, transform.position)){
-                walkingTowards = null;
+            if (!nearEnough(moveTowards, transform.position)) {
+                moveDirection = (moveTowards - transform.position).normalized;
             } else {
-                transform.position = Vector3.MoveTowards(transform.position, (Vector3)walkingTowards, 10.0f * Time.deltaTime);
+                moveDirection = Vector3.zero;
             }
+            moveDirection = transform.TransformDirection(moveDirection);
+            moveDirection = moveDirection * speed;
+            playerCharacter.transform.LookAt(new Vector3(moveDirection.x, moveDirection.y, moveDirection.z));
         }
+        moveDirection.y = moveDirection.y - (gravity * Time.deltaTime);
+        controller.Move(moveDirection * Time.deltaTime);
 
 
     }
