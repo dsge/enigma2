@@ -40,7 +40,9 @@ public class PlayerMovement : MonoBehaviour
             }
             moveDirection = transform.TransformDirection(moveDirection);
             moveDirection = moveDirection * speed;
-            playerCharacter.transform.LookAt(new Vector3(moveDirection.x, moveDirection.y, moveDirection.z));
+
+            playerCharacter.transform.LookAt(moveTowards);
+            playerCharacter.transform.eulerAngles = new Vector3(0, playerCharacter.transform.eulerAngles.y, playerCharacter.transform.eulerAngles.z);
         }
         moveDirection.y = moveDirection.y - (gravity * Time.deltaTime);
         controller.Move(moveDirection * Time.deltaTime);
