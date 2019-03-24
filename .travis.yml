@@ -9,8 +9,8 @@ install:
   - sudo apt-get update
   - sudo apt-get install libnss3 libgtk2.0-0 libsoup2.4-1 libarchive13 libgconf-2-4 lib32stdc++6 libcanberra-gtk-module p7zip-full desktop-file-utils xdg-utils libfontconfig1 libfreetype6 zenity
   - |
-    UNITY_EDITOR_INSTALL_FOLDER = "$HOME/Unity-installer-2019.1.0b8"
-    UNITY_EDITOR_TAR = "$UNITY_EDITOR_INSTALL_FOLDER/Unity.tar.xz"
+    UNITY_EDITOR_INSTALL_FOLDER="$HOME/Unity-installer-2019.1.0b8"
+    UNITY_EDITOR_TAR="$UNITY_EDITOR_INSTALL_FOLDER/Unity.tar.xz"
     if [ ! -f "$UNITY_EDITOR_TAR" ]; then
       mkdir -p $UNITY_EDITOR_INSTALL_FOLDER
       cd $UNITY_EDITOR_INSTALL_FOLDER
