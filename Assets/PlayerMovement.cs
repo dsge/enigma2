@@ -17,6 +17,14 @@ public class PlayerMovement : MonoBehaviour
         playerCharacter = GameObject.Find("playerCharacter");
         controller = GetComponent<CharacterController>();
         gameObject.transform.position = new Vector3(0, 5, 0);
+
+        int numberOfObjects = 5;
+        for (int i = 0; i < numberOfObjects; i++)
+        {
+            float angle = i * Mathf.PI * 2 / numberOfObjects;
+            Vector3 pos = new Vector3(Mathf.Cos(angle), 0.1f, Mathf.Sin(angle)) * 5f;
+            Instantiate(playerCharacter, pos, Quaternion.identity);
+        }
     }
 
     void Update()
