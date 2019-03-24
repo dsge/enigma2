@@ -1,0 +1,7 @@
+language: minimal
+install:
+- wget https://public-cdn.cloud.unity3d.com/hub/prod/UnityHubSetup.AppImage
+- chmod +x UnityHubSetup.AppImage
+- ./UnityHubSetup.AppImage
+script:
+- echo "foo"
