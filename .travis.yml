@@ -3,10 +3,11 @@
 
 language: minimal
 env:
-  - UNITY_VERSION="2019.1.0b8"
-  - UNITY_DOWNLOAD_URL="https://beta.unity3d.com/download/0862b00eb5a3/LinuxEditorInstaller/Unity.tar.xz"
-  - UNITY_EDITOR_INSTALL_FOLDER="$HOME/Unity/Hub/Editor/$UNITY_VERSION"
-  - UNITY_EDITOR_BINARY="$UNITY_EDITOR_INSTALL_FOLDER/Editor/Unity"
+  global: 
+    - UNITY_VERSION="2019.1.0b8"
+    - UNITY_DOWNLOAD_URL="https://beta.unity3d.com/download/0862b00eb5a3/LinuxEditorInstaller/Unity.tar.xz"
+    - UNITY_EDITOR_INSTALL_FOLDER="$HOME/Unity/Hub/Editor/$UNITY_VERSION"
+    - UNITY_EDITOR_BINARY="$UNITY_EDITOR_INSTALL_FOLDER/Editor/Unity"
 cache:
   directories:
     - $UNITY_EDITOR_INSTALL_FOLDER
