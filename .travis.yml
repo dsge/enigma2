@@ -57,6 +57,8 @@ script:
   # 
   # this commands always returns 1 (which means error), even if it succeeds
   - $UNITY_EDITOR -executeMethod MyEditorBuild.PerformBuild || true
+  # compress the built app for github releases
+  - tar -zcvf app.tar.gz build/linux
 
 cache:
   # the default cache timeout is 180 seconds which is not enough to pack the unity editor
@@ -64,3 +66,12 @@ cache:
   directories:
     # downloading unity would take too long from unity's server, so we cache it by travis
     - "$UNITY_EDITOR_INSTALL_FOLDER"
+
+deploy:
+  provider: releases
+  file: "$TRAVIS_BUILD_DIR/app.tar.gz"
+  skip_cleanup: true
+  on:
+    tags: true
+  api_key:
+    secure: $GITHUB_TOKEN
