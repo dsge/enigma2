@@ -37,17 +37,18 @@ install:
       wget -nv "$UNITY_DOWNLOAD_URL"
       tar xf Unity.tar.xz -C "$UNITY_EDITOR_INSTALL_FOLDER"
     fi
-    # Create a unity manual activation (*.alf) file
-    # - https://docs.unity3d.com/Manual/CommandLineArguments.html
-    # - https://docs.unity3d.com/Manual/ManualActivationGuide.html
-    # For a free version of unity the alf file has to be exchanged for an ulf file using unity's website (see ManualActivationGuide).
-    # The alf file has to be generated on the CI's virtual machine (where the tests will be run), because Unity will then 
-    # see that as a license activation on a single computer. We cross our fingers that the ulf file we get in exchange for it 
-    # won't be invalidated during subsequent CI runs.
-    #
-    # This actually on has to be done once (when you have your .ulf file then this is pointless). But I still leave it here for now.
-    #
-    # this commands always returns 1 (which means error), even if it succeeds
+
+  # Create a unity manual activation (*.alf) file
+  # - https://docs.unity3d.com/Manual/CommandLineArguments.html
+  # - https://docs.unity3d.com/Manual/ManualActivationGuide.html
+  # For a free version of unity the alf file has to be exchanged for an ulf file using unity's website (see ManualActivationGuide).
+  # The alf file has to be generated on the CI's virtual machine (where the tests will be run), because Unity will then 
+  # see that as a license activation on a single computer. We cross our fingers that the ulf file we get in exchange for it 
+  # won't be invalidated during subsequent CI runs.
+  #
+  # This actually on has to be done once (when you have your .ulf file then this is pointless). But I still leave it here for now.
+  #
+  # this commands always returns 1 (which means error), even if it succeeds
   - $UNITY_EDITOR -createManualActivationFile || true
     # Output the manual activation file to the travis log for easy copypasting into Unity's website
   - cat "Unity_v$UNITY_VERSION.alf"
