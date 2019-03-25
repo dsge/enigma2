@@ -23,9 +23,9 @@ install:
       wget "$UNITY_DOWNLOAD_URL"
       tar xf Unity.tar.xz -C "$UNITY_EDITOR_INSTALL_FOLDER"
     fi
-  - $UNITY_EDITOR -createManualActivationFile || 1
+  - $UNITY_EDITOR -createManualActivationFile || true
   - find -name "Unity*" -exec mv {} $UNITY_ACTIVATION_FILE \;
-  - $UNITY_EDITOR -manualLicenseFile $UNITY_ACTIVATION_FILE || 1
+  - $UNITY_EDITOR -manualLicenseFile $UNITY_ACTIVATION_FILE || true
 script:
   - cd $TRAVIS_BUILD_DIR
-  - $UNITY_EDITOR_BINARY -executeMethod MyEditorBuild.PerformBuild
+  - $UNITY_EDITOR_BINARY -executeMethod MyEditorBuild.PerformBuild || true
