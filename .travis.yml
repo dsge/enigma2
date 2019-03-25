@@ -36,6 +36,7 @@ install:
       cd ~/unity-download-tmp
       wget -nv "$UNITY_DOWNLOAD_URL"
       tar xf Unity.tar.xz -C "$UNITY_EDITOR_INSTALL_FOLDER"
+      cd $TRAVIS_BUILD_DIR
     fi
 
   # Create a unity manual activation (*.alf) file
