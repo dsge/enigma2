@@ -78,10 +78,10 @@ before_cache:
     if [ ! -f ~/foo ]; then
       cp ~/foo $FILE_THAT_CHANGES_ON_EVERY_BUILD 
     fi
+before_deploy:
+  # compress the built app for github releases
+  - tar -zcvf app.tar.gz build/linux
 deploy:
-  before_deploy:
-    # compress the built app for github releases
-    - tar -zcvf app.tar.gz build/linux
   provider: releases
   file: "app.tar.gz"
   skip_cleanup: true
