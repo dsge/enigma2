@@ -23,7 +23,7 @@ env:
     - FILE_THAT_CHANGES_ON_EVERY_BUILD="$UNITY_EDITOR_INSTALL_FOLDER/Editor/Data/MonoBleedingEdge/etc/mono/registry/last-btime"
 install:
   - |
-    if [ ! -f "$UNITY_EDITOR_BINARY" ]; then
+    if [ -f "$FILE_THAT_CHANGES_ON_EVERY_BUILD" ]; then
       cp $FILE_THAT_CHANGES_ON_EVERY_BUILD ~/foo
     fi
   - sudo apt-get update
