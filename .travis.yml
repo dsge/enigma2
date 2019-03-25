@@ -21,7 +21,7 @@ install:
     if [ ! -f "$UNITY_EDITOR_BINARY" ]; then
       mkdir -p ~/unity-download-tmp
       cd ~/unity-download-tmp
-      wget "$UNITY_DOWNLOAD_URL"
+      wget -nv "$UNITY_DOWNLOAD_URL"
       tar xf Unity.tar.xz -C "$UNITY_EDITOR_INSTALL_FOLDER"
     fi
   - $UNITY_EDITOR -createManualActivationFile -username $UNITY_USERNAME -password $UNITY_PASSWORD || true
