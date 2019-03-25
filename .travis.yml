@@ -19,6 +19,7 @@ env:
       # basically you'd want these params appended to every command you run in CI
       # source: https://docs.unity3d.com/Manual/CommandLineArguments.html
     - UNITY_EDITOR="$UNITY_EDITOR_BINARY -quit -batchmode -logfile -nographics"
+      # this file changes on every build, making travis think that the unity editor's files have to be re-cached
     - FILE_THAT_CHANGES_ON_EVERY_BUILD="$UNITY_EDITOR_INSTALL_FOLDER/Editor/Data/MonoBleedingEdge/etc/mono/registry/last-btime"
 install:
   - |
@@ -27,7 +28,7 @@ install:
     fi
   - sudo apt-get update
     # unity's runtime dependencies
-  - sudo apt-get install libnss3 libgtk2.0-0 libsoup2.4-1 libarchive13 libgconf-2-4 lib32stdc++6 libcanberra-gtk-module p7zip-full desktop-file-utils xdg-utils libfontconfig1 libfreetype6 zenity jack
+  - sudo apt-get install libnss3 libgtk2.0-0 libsoup2.4-1 libarchive13 libgconf-2-4 lib32stdc++6 libcanberra-gtk-module p7zip-full desktop-file-utils xdg-utils libfontconfig1 libfreetype6 zenity pulseaudio
     # if the unity binary is not found then we assume that travis' cache is not in effect and we have to download unity from unity's servers
   - |
     if [ ! -f "$UNITY_EDITOR_BINARY" ]; then
@@ -70,7 +71,6 @@ cache:
     # downloading unity would take too long from unity's server, so we cache it by travis
     - "$UNITY_EDITOR_INSTALL_FOLDER"
 before_cache:
-    # this file changes on every build, making travis thing that the unity editor has to be re-cached
   - |
     rm -f "$FILE_THAT_CHANGES_ON_EVERY_BUILD"
     if [ ! -f ~/foo ]; then
