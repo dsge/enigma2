@@ -64,7 +64,9 @@ cache:
   directories:
     # downloading unity would take too long from unity's server, so we cache it by travis
     - "$UNITY_EDITOR_INSTALL_FOLDER"
-
+before_cache:
+    # this file changes on every build, making travis thing that the unity editor has to be re-cached
+  - rm -f "$UNITY_EDITOR_INSTALL_FOLDER/Editor/Data/MonoBleedingEdge/etc/mono/registry/last-btime"
 deploy:
   before_deploy:
     # compress the built app for github releases
