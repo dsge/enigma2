@@ -26,7 +26,7 @@ install:
     fi
   - $UNITY_EDITOR -createManualActivationFile -username $UNITY_USERNAME -password $UNITY_PASSWORD || true
   - find -name "Unity*" -exec mv {} $UNITY_ACTIVATION_FILE \;
-  - $UNITY_EDITOR -manualLicenseFile $UNITY_ACTIVATION_FILE || true
+  - $UNITY_EDITOR -manualLicenseFile $UNITY_ACTIVATION_FILE -username $UNITY_USERNAME -password $UNITY_PASSWORD || true
 script:
   - cd $TRAVIS_BUILD_DIR
-  - $UNITY_EDITOR -executeMethod MyEditorBuild.PerformBuild || true
+  - $UNITY_EDITOR -executeMethod MyEditorBuild.PerformBuild -username $UNITY_USERNAME -password $UNITY_PASSWORD || true
