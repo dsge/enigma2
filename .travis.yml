@@ -33,6 +33,10 @@ install:
   - echo '######################'
   - cat $UNITY_ACTIVATION_FILE
   - echo '######################'
+  - grep "." $UNITY_ACTIVATION_FILE
+  - echo '######################'
+  - head -1000 $UNITY_ACTIVATION_FILE
+  - echo '######################'
 script:
   - cd $TRAVIS_BUILD_DIR
   - $UNITY_EDITOR -executeMethod MyEditorBuild.PerformBuild || true
