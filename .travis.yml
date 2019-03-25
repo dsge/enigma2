@@ -28,4 +28,4 @@ install:
   - $UNITY_EDITOR -manualLicenseFile $UNITY_ACTIVATION_FILE || true
 script:
   - cd $TRAVIS_BUILD_DIR
-  - $UNITY_EDITOR_BINARY -executeMethod MyEditorBuild.PerformBuild || true
+  - $UNITY_EDITOR -executeMethod MyEditorBuild.PerformBuild || true
