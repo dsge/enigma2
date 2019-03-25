@@ -1,0 +1,89 @@
+language: minimal
+env:
+  global: 
+      ###
+      # All of these global env variables are made up for this script only, none of them are used by unity's binary
+      ###
+
+      # The version appears in the generated manual activation file's filename, so we need to know it here in this script too
+    - UNITY_VERSION="2019.1.0b8"
+      # The download url is based on:
+      # - https://github.com/sttz/install-unity/blob/next/sttz.InstallUnity/Installer/Scraper.cs
+      # which tells us where unity keeps the direct download links to it's releases:
+      # - https://public-cdn.cloud.unity3d.com/hub/prod/releases-linux.json
+    - UNITY_DOWNLOAD_URL="https://beta.unity3d.com/download/0862b00eb5a3/LinuxEditorInstaller/Unity.tar.xz"
+      # this is where we install Unity - mimics the directory structure of where unity would be installed by the Unity Hub
+    - UNITY_EDITOR_INSTALL_FOLDER="$HOME/Unity/Hub/Editor/$UNITY_VERSION"
+      # a direct path to the installed Unity binary
+    - UNITY_EDITOR_BINARY="$UNITY_EDITOR_INSTALL_FOLDER/Editor/Unity"
+      # basically you'd want these params appended to every command you run in CI
+      # source: https://docs.unity3d.com/Manual/CommandLineArguments.html
+    - UNITY_EDITOR="$UNITY_EDITOR_BINARY -quit -batchmode -logfile -nographics"
+      # this file changes on every build, making travis think that the unity editor's files have to be re-cached
+    - FILE_THAT_CHANGES_ON_EVERY_BUILD="$UNITY_EDITOR_INSTALL_FOLDER/Editor/Data/MonoBleedingEdge/etc/mono/registry/last-btime"
+install:
+  - |
+    if [ ! -f "$UNITY_EDITOR_BINARY" ]; then
+      cp $FILE_THAT_CHANGES_ON_EVERY_BUILD ~/foo
+    fi
+  - sudo apt-get update
+    # unity's runtime dependencies
+  - sudo apt-get install libnss3 libgtk2.0-0 libsoup2.4-1 libarchive13 libgconf-2-4 lib32stdc++6 libcanberra-gtk-module p7zip-full desktop-file-utils xdg-utils libfontconfig1 libfreetype6 zenity pulseaudio libunwind8-dev
+    # if the unity binary is not found then we assume that travis' cache is not in effect and we have to download unity from unity's servers
+  - |
+    if [ ! -f "$UNITY_EDITOR_BINARY" ]; then
+      mkdir -p ~/unity-download-tmp
+      cd ~/unity-download-tmp
+      wget -nv "$UNITY_DOWNLOAD_URL"
+      tar xf Unity.tar.xz -C "$UNITY_EDITOR_INSTALL_FOLDER"
+    fi
+    # Create a unity manual activation (*.alf) file
+    # - https://docs.unity3d.com/Manual/CommandLineArguments.html
+    # - https://docs.unity3d.com/Manual/ManualActivationGuide.html
+    # For a free version of unity the alf file has to be exchanged for an ulf file using unity's website (see ManualActivationGuide).
+    # The alf file has to be generated on the CI's virtual machine (where the tests will be run), because Unity will then 
+    # see that as a license activation on a single computer. We cross our fingers that the ulf file we get in exchange for it 
+    # won't be invalidated during subsequent CI runs.
+    #
+    # This actually on has to be done once (when you have your .ulf file then this is pointless). But I still leave it here for now.
+    #
+    # this commands always returns 1 (which means error), even if it succeeds
+  - $UNITY_EDITOR -createManualActivationFile || true
+    # Output the manual activation file to the travis log for easy copypasting into Unity's website
+  - cat "Unity_v$UNITY_VERSION.alf"
+    # decrypt the Unity license file (ulf) that we got by exchanging the alf file for it using unity's website
+  - openssl aes-256-cbc -K $encrypted_3c1098c58b6f_key -iv $encrypted_3c1098c58b6f_iv -in Unity_v2019.x.ulf.enc -out Unity_v2019.x.ulf -d
+    # set this ulf file as the license we will use
+    # this commands always returns 1 (which means error), even if it succeeds
+  - $UNITY_EDITOR -manualLicenseFile $TRAVIS_BUILD_DIR/Unity_v2019.x.ulf || true
+  
+script:
+  - cd $TRAVIS_BUILD_DIR
+  # build the app
+  # 
+  # this commands always returns 1 (which means error), even if it succeeds
+  - $UNITY_EDITOR -executeMethod MyEditorBuild.PerformBuild || true
+
+cache:
+  # the default cache timeout is 180 seconds which is not enough to pack the unity editor
+  timeout: 1000
+  directories:
+    # downloading unity would take too long from unity's server, so we cache it by travis
+    - "$UNITY_EDITOR_INSTALL_FOLDER"
+before_cache:
+  - |
+    rm -f "$FILE_THAT_CHANGES_ON_EVERY_BUILD"
+    if [ ! -f ~/foo ]; then
+      cp ~/foo $FILE_THAT_CHANGES_ON_EVERY_BUILD 
+    fi
+deploy:
+  before_deploy:
+    # compress the built app for github releases
+    - tar -zcvf app.tar.gz build/linux
+  provider: releases
+  file: "app.tar.gz"
+  skip_cleanup: true
+  on:
+    tags: false
+  api_key:
+    secure: $GITHUB_TOKEN
