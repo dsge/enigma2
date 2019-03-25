@@ -23,7 +23,7 @@ install:
       wget "$UNITY_DOWNLOAD_URL"
       tar xf Unity.tar.xz -C "$UNITY_EDITOR_INSTALL_FOLDER"
     fi
-  - $UNITY_EDITOR -createManualActivationFile || true
+  - $UNITY_EDITOR -createManualActivationFile -username $UNITY_USERNAME -password $UNITY_PASSWORD || true
   - find -name "Unity*" -exec mv {} $UNITY_ACTIVATION_FILE \;
   - $UNITY_EDITOR -manualLicenseFile $UNITY_ACTIVATION_FILE || true
 script:
