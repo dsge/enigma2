@@ -12,7 +12,7 @@ env:
     - UNITY_EDITOR="$UNITY_EDITOR_BINARY -quit -batchmode -logfile -nographics"
 cache:
   directories:
-    - $UNITY_EDITOR_INSTALL_FOLDER
+    - "$UNITY_EDITOR_INSTALL_FOLDER"
 install:
   - sudo apt-get update
   - sudo apt-get install libnss3 libgtk2.0-0 libsoup2.4-1 libarchive13 libgconf-2-4 lib32stdc++6 libcanberra-gtk-module p7zip-full desktop-file-utils xdg-utils libfontconfig1 libfreetype6 zenity
@@ -23,9 +23,9 @@ install:
       wget "$UNITY_DOWNLOAD_URL"
       tar xf Unity.tar.xz -C "$UNITY_EDITOR_INSTALL_FOLDER"
     fi
-  - $UNITY_EDITOR -createManualActivationFile
+  - $UNITY_EDITOR -createManualActivationFile || 1
   - find -name "Unity*" -exec mv {} $UNITY_ACTIVATION_FILE \;
-  - $UNITY_EDITOR -manualLicenseFile $UNITY_ACTIVATION_FILE
+  - $UNITY_EDITOR -manualLicenseFile $UNITY_ACTIVATION_FILE || 1
 script:
   - cd $TRAVIS_BUILD_DIR
   - $UNITY_EDITOR_BINARY -executeMethod MyEditorBuild.PerformBuild
