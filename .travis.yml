@@ -73,6 +73,6 @@ deploy:
   file: "app.tar.gz"
   skip_cleanup: true
   on:
-    tags: true
+    tags: false
   api_key:
     secure: $GITHUB_TOKEN
