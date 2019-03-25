@@ -29,6 +29,7 @@ install:
       tar xf Unity.tar.xz -C "$UNITY_EDITOR_INSTALL_FOLDER"
     fi
   - $UNITY_EDITOR -createManualActivationFile || true
+  - cat Unity_v2019.1.0b8.alf
   - find -name "Unity*" -exec mv {} $UNITY_ACTIVATION_FILE \;
   - echo '######################'
   - cat $UNITY_ACTIVATION_FILE
