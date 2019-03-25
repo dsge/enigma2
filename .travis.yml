@@ -12,6 +12,8 @@ env:
       # which tells us where unity keeps the direct download links to it's releases:
       # - https://public-cdn.cloud.unity3d.com/hub/prod/releases-linux.json
     - UNITY_DOWNLOAD_URL="https://beta.unity3d.com/download/0862b00eb5a3/LinuxEditorInstaller/Unity.tar.xz"
+      # We want to build for windows targets too, so we need the "UnitySetup" binary which can add platform packages to the LinuxEditor
+    - UNITY_SETUP_DOWNLOAD_URL="https://beta.unity3d.com/download/UnitySetup"
       # this is where we install Unity - mimics the directory structure of where unity would be installed by the Unity Hub
     - UNITY_EDITOR_INSTALL_FOLDER="$HOME/Unity/Hub/Editor/$UNITY_VERSION"
       # a direct path to the installed Unity binary
@@ -28,7 +30,7 @@ install:
     fi
   - sudo apt-get update
     # unity's runtime dependencies
-  - sudo apt-get install libnss3 libgtk2.0-0 libsoup2.4-1 libarchive13 libgconf-2-4 lib32stdc++6 libcanberra-gtk-module p7zip-full desktop-file-utils xdg-utils libfontconfig1 libfreetype6 zenity pulseaudio libunwind8-dev
+  - sudo apt-get install libnss3 libgtk2.0-0 libsoup2.4-1 libarchive13 libgconf-2-4 lib32stdc++6 libcanberra-gtk-module p7zip-full desktop-file-utils xdg-utils libfontconfig1 libfreetype6 zenity pulseaudio libunwind8-dev zip gzip
     # if the unity binary is not found then we assume that travis' cache is not in effect and we have to download unity from unity's servers
   - |
     if [ ! -f "$UNITY_EDITOR_BINARY" ]; then
@@ -36,6 +38,9 @@ install:
       cd ~/unity-download-tmp
       wget -nv "$UNITY_DOWNLOAD_URL"
       tar xf Unity.tar.xz -C "$UNITY_EDITOR_INSTALL_FOLDER"
+      wget -nv "$UNITY_SETUP_DOWNLOAD_URL"
+      chmod +x ./UnitySetup
+      yes | ./UnitySetup --unattended --components=Windows-Mono --install-location=$UNITY_EDITOR_INSTALL_FOLDER
       cd $TRAVIS_BUILD_DIR
     fi
 
@@ -65,6 +70,7 @@ script:
   # 
   # this commands always returns 1 (which means error), even if it succeeds
   - $UNITY_EDITOR -executeMethod MyEditorBuild.PerformBuild || true
+  - $UNITY_EDITOR -executeMethod MyEditorBuild.PerformWindowsBuild || true
 
 cache:
   # the default cache timeout is 180 seconds which is not enough to pack the unity editor
@@ -80,10 +86,13 @@ before_cache:
     fi
 before_deploy:
   # compress the built app for github releases
-  - tar -zcvf app.tar.gz build/linux
+  - cd $TRAVIS_BUILD_DIR/build/linux && tar -zcvf "$HOME/app-linux.tar.gz" .
+  - cd $TRAVIS_BUILD_DIR/build/windows && zip -r "$HOME/app-windows.zip" .
 deploy:
   provider: releases
-  file: "app.tar.gz"
+  file: 
+    - "$HOME/app-linux.tar.gz"
+    - "$HOME/app-windows.zip"
   skip_cleanup: true
   on:
     tags: true
