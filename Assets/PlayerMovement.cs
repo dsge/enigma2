@@ -7,6 +7,11 @@ public class PlayerMovement : MonoBehaviour
     GameObject playerCharacter;
 
     private Vector3 moveTowards = Vector3.zero;
+    /**
+     * the player initially started the movement by clicking on an enemy
+     */
+    private bool movementStartedOnEnemy = false;
+    private bool movementNotStartedOnEnemy = false;
     private Vector3 moveDirection = Vector3.zero;
     private CharacterController controller;
 
@@ -44,17 +49,34 @@ public class PlayerMovement : MonoBehaviour
              */
             if (Input.GetMouseButton(0))
             {
-                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                if (!movementStartedOnEnemy) {
+                    Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
-                RaycastHit hitInfo;
-                if (Physics.Raycast(ray, out hitInfo, 100000f, LAYER_GROUND)){
-                    /**
-                     * the player clicked on a Collider (any Collider)
-                     *
-                     * save the point that he wanted to move towards
-                     */
-                    moveTowards = hitInfo.point;
+                    RaycastHit hitInfo;
+                    if (!movementNotStartedOnEnemy && Physics.Raycast(ray, out hitInfo, 100000f, LAYER_ENEMIES)){
+                        /**
+                        * the player clicked on an enemy
+                        *
+                        * save the point that he wanted to move towards
+                        */
+                        moveTowards = hitInfo.transform.parent.gameObject.transform.position;
+                        movementStartedOnEnemy = true;
+                    }
+                    else {
+                        if (!movementStartedOnEnemy && Physics.Raycast(ray, out hitInfo, 100000f, LAYER_GROUND)){
+                            /**
+                            * the player clicked on a Collider (any Collider)
+                            *
+                            * save the point that he wanted to move towards
+                            */
+                            moveTowards = hitInfo.point;
+                            movementNotStartedOnEnemy = true;
+                        }
+                    }
                 }
+            } else {
+                movementStartedOnEnemy = false;
+                movementNotStartedOnEnemy = false;
             }
             if (!nearEnough(moveTowards, transform.position)) {
                 /**
