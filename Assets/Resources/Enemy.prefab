@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 1197887711208480451}
   - component: {fileID: 8938736242057716772}
   - component: {fileID: 6825162674669175129}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Cylinder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -101,7 +101,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6533580116197312481}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Enemy
   m_TagString: Untagged
   m_Icon: {fileID: 0}

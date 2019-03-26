@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657838, g: 0.49641222, b: 0.5748171, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -132,7 +132,7 @@ GameObject:
   - component: {fileID: 476754487}
   - component: {fileID: 476754486}
   - component: {fileID: 476754485}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Plane
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -499,7 +499,7 @@ GameObject:
   - component: {fileID: 937885430}
   - component: {fileID: 937885429}
   - component: {fileID: 937885428}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: bridge
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -777,7 +777,7 @@ GameObject:
   - component: {fileID: 1527558572}
   - component: {fileID: 1527558571}
   - component: {fileID: 1527558570}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -865,7 +865,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1625443283}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: bridge
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -901,7 +901,7 @@ GameObject:
   - component: {fileID: 1792474310}
   - component: {fileID: 1792474309}
   - component: {fileID: 1792474308}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: stairs
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1086,6 +1086,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 4873783328318448205, guid: b309b5bf82f0b4289a5d84c2a7a6c3a7,
+        type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 4873783328318448204, guid: b309b5bf82f0b4289a5d84c2a7a6c3a7,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -1150,6 +1155,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4873783326770310308, guid: b309b5bf82f0b4289a5d84c2a7a6c3a7,
+        type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1643063200609000680, guid: b309b5bf82f0b4289a5d84c2a7a6c3a7,
+        type: 3}
+      propertyPath: m_Layer
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b309b5bf82f0b4289a5d84c2a7a6c3a7, type: 3}

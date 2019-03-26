@@ -10,6 +10,9 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 moveDirection = Vector3.zero;
     private CharacterController controller;
 
+    const int LAYER_GROUND = 1 << 9;
+    const int LAYER_ENEMIES = 1 << 10;
+
     public float speed = 10.0f;
     public float gravity = 20.0f;
     void Start()
@@ -23,7 +26,8 @@ public class PlayerMovement : MonoBehaviour
         {
             float angle = i * Mathf.PI * 2 / numberOfObjects;
             Vector3 pos = new Vector3(Mathf.Cos(angle), 0.1f, Mathf.Sin(angle)) * 5f;
-            Instantiate(playerCharacter, pos, Quaternion.identity);
+            GameObject enemy = Instantiate (Resources.Load("Enemy") as GameObject, pos, Quaternion.identity);
+            enemy.transform.Find("Cylinder").GetComponent<Renderer>().material.color = new Color(0, 255, 0);
         }
     }
 
@@ -42,7 +46,7 @@ public class PlayerMovement : MonoBehaviour
                 Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
                 RaycastHit hitInfo;
-                if (Physics.Raycast(ray, out hitInfo)){
+                if (Physics.Raycast(ray, out hitInfo, 100000f, LAYER_GROUND)){
                     /**
                      * the player clicked on a Collider (any Collider)
                      *
