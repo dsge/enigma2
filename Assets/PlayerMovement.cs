@@ -15,26 +15,20 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 moveDirection = Vector3.zero;
     private CharacterController controller;
 
+    private BasicEnemySpawner spawner;
+
     const int LAYER_GROUND = 1 << 9;
     const int LAYER_ENEMIES = 1 << 10;
 
     public float speed = 10.0f;
     public float gravity = 20.0f;
-
-    public List<GameObject> enemies;
     void Start()
     {
         playerCharacter = GameObject.Find("playerCharacter");
         controller = GetComponent<CharacterController>();
         gameObject.transform.position = new Vector3(0, 5, 0);
 
-        int numberOfObjects = 5;
-        for (int i = 0; i < numberOfObjects; i++)
-        {
-            float angle = i * Mathf.PI * 2 / numberOfObjects;
-            Vector3 pos = new Vector3(Mathf.Cos(angle), 0.1f, Mathf.Sin(angle)) * 5f;
-            enemies.Add(Instantiate (Resources.Load("Enemy") as GameObject, pos, Quaternion.identity));
-        }
+        spawner = GameObject.Find("global components handler").GetComponent<BasicEnemySpawner>();
     }
 
     void Update()
@@ -64,8 +58,7 @@ public class PlayerMovement : MonoBehaviour
 
                         if (nearEnough(moveTowards, transform.position, 2f)) {
                             GameObject enemy = hitInfo.transform.parent.gameObject;
-                            Destroy(enemy);
-                            enemies.Remove(enemy);
+                            spawner.removeEnemy(enemy);
                         }
                     }
                     else {
@@ -133,7 +126,8 @@ public class PlayerMovement : MonoBehaviour
     }
 
     void colorEnemiesOnHover() {
-        foreach (var enemy in enemies) {
+
+        foreach (var enemy in spawner.getEnemies()) {
             enemy.transform.Find("Cylinder").GetComponent<Renderer>().material.color = new Color(255, 255, 255);
         }
 
