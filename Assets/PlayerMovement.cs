@@ -15,6 +15,8 @@ public class PlayerMovement : MonoBehaviour
 
     public float speed = 10.0f;
     public float gravity = 20.0f;
+
+    public List<GameObject> enemies;
     void Start()
     {
         playerCharacter = GameObject.Find("playerCharacter");
@@ -26,8 +28,7 @@ public class PlayerMovement : MonoBehaviour
         {
             float angle = i * Mathf.PI * 2 / numberOfObjects;
             Vector3 pos = new Vector3(Mathf.Cos(angle), 0.1f, Mathf.Sin(angle)) * 5f;
-            GameObject enemy = Instantiate (Resources.Load("Enemy") as GameObject, pos, Quaternion.identity);
-            enemy.transform.Find("Cylinder").GetComponent<Renderer>().material.color = new Color(0, 255, 0);
+            enemies.Add(Instantiate (Resources.Load("Enemy") as GameObject, pos, Quaternion.identity));
         }
     }
 
@@ -96,6 +97,20 @@ public class PlayerMovement : MonoBehaviour
          */
         moveDirection.y = moveDirection.y - (gravity * Time.deltaTime);
         controller.Move(moveDirection * Time.deltaTime);
+
+
+        colorEnemiesOnHover();
+    }
+
+    void colorEnemiesOnHover() {
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hitInfo;
+        if (Physics.Raycast(ray, out hitInfo, 100000f, LAYER_ENEMIES)){
+            hitInfo
+                .transform
+                .gameObject
+                .GetComponent<Renderer>().material.color = new Color(0, 255, 0);
+        }
     }
 
     bool nearEnough(Vector3 target, Vector3 currentPosition) {
