@@ -5,13 +5,18 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
     GameObject playerCharacter;
-
+    /**
+     * the point that the player intends to move to
+     */
     private Vector3 moveTowards = Vector3.zero;
     /**
      * the player initially started the movement by clicking on an enemy
      */
     private bool movementStartedOnEnemy = false;
-    private bool movementNotStartedOnEnemy = false;
+    /**
+     * the player initially started the movement by clicking on the ground
+     */
+    private bool movementStartedOnGround = false;
     private Vector3 moveDirection = Vector3.zero;
     private CharacterController controller;
 
@@ -44,7 +49,7 @@ public class PlayerMovement : MonoBehaviour
                     Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
                     RaycastHit hitInfo;
-                    if (!movementNotStartedOnEnemy && Physics.Raycast(ray, out hitInfo, 100000f, Layers.ENEMIES)){
+                    if (!movementStartedOnGround && Physics.Raycast(ray, out hitInfo, 100000f, Layers.ENEMIES)){
                         /**
                         * the player clicked on an enemy
                         *
@@ -66,13 +71,13 @@ public class PlayerMovement : MonoBehaviour
                             * save the point that he wanted to move towards
                             */
                             moveTowards = hitInfo.point;
-                            movementNotStartedOnEnemy = true;
+                            movementStartedOnGround = true;
                         }
                     }
                 }
             } else {
                 movementStartedOnEnemy = false;
-                movementNotStartedOnEnemy = false;
+                movementStartedOnGround = false;
             }
 
 
@@ -123,11 +128,15 @@ public class PlayerMovement : MonoBehaviour
     }
 
     void colorEnemiesOnHover() {
-
+        /**
+         * turn all enemies into the default color...
+         */
         foreach (var enemy in spawner.getEnemies()) {
             enemy.transform.Find("Cylinder").GetComponent<Renderer>().material.color = new Color(255, 255, 255);
         }
-
+        /**
+         * ...but turn the one we are pointing at green
+         */
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hitInfo;
         if (Physics.Raycast(ray, out hitInfo, 100000f, Layers.ENEMIES)){
@@ -137,7 +146,9 @@ public class PlayerMovement : MonoBehaviour
                 .GetComponent<Renderer>().material.color = new Color(0, 255, 0);
         }
     }
-
+    /**
+     * are two points within a certain distance from each other if you ignore their height component?
+     */
     bool nearEnough(Vector3 target, Vector3 currentPosition, float distance = 0.001f) {
         target.y = 0f;
         currentPosition.y = 0f;
