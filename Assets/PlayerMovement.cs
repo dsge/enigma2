@@ -17,9 +17,6 @@ public class PlayerMovement : MonoBehaviour
 
     private BasicEnemySpawner spawner;
 
-    const int LAYER_GROUND = 1 << 9;
-    const int LAYER_ENEMIES = 1 << 10;
-
     public float speed = 10.0f;
     public float gravity = 20.0f;
     void Start()
@@ -47,7 +44,7 @@ public class PlayerMovement : MonoBehaviour
                     Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
                     RaycastHit hitInfo;
-                    if (!movementNotStartedOnEnemy && Physics.Raycast(ray, out hitInfo, 100000f, LAYER_ENEMIES)){
+                    if (!movementNotStartedOnEnemy && Physics.Raycast(ray, out hitInfo, 100000f, Layers.ENEMIES)){
                         /**
                         * the player clicked on an enemy
                         *
@@ -62,7 +59,7 @@ public class PlayerMovement : MonoBehaviour
                         }
                     }
                     else {
-                        if (!movementStartedOnEnemy && Physics.Raycast(ray, out hitInfo, 100000f, LAYER_GROUND)){
+                        if (!movementStartedOnEnemy && Physics.Raycast(ray, out hitInfo, 100000f, Layers.GROUND)){
                             /**
                             * the player clicked on a Collider (any Collider)
                             *
@@ -133,7 +130,7 @@ public class PlayerMovement : MonoBehaviour
 
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hitInfo;
-        if (Physics.Raycast(ray, out hitInfo, 100000f, LAYER_ENEMIES)){
+        if (Physics.Raycast(ray, out hitInfo, 100000f, Layers.ENEMIES)){
             hitInfo
                 .transform
                 .gameObject
