@@ -103,6 +103,10 @@ public class PlayerMovement : MonoBehaviour
     }
 
     void colorEnemiesOnHover() {
+        foreach (var enemy in enemies) {
+            enemy.transform.Find("Cylinder").GetComponent<Renderer>().material.color = new Color(255, 255, 255);
+        }
+
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hitInfo;
         if (Physics.Raycast(ray, out hitInfo, 100000f, LAYER_ENEMIES)){
