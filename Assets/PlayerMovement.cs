@@ -61,6 +61,12 @@ public class PlayerMovement : MonoBehaviour
                         */
                         moveTowards = hitInfo.transform.parent.gameObject.transform.position;
                         movementStartedOnEnemy = true;
+
+                        if (nearEnough(moveTowards, transform.position, 2f)) {
+                            GameObject enemy = hitInfo.transform.parent.gameObject;
+                            Destroy(enemy);
+                            enemies.Remove(enemy);
+                        }
                     }
                     else {
                         if (!movementStartedOnEnemy && Physics.Raycast(ray, out hitInfo, 100000f, LAYER_GROUND)){
@@ -78,7 +84,9 @@ public class PlayerMovement : MonoBehaviour
                 movementStartedOnEnemy = false;
                 movementNotStartedOnEnemy = false;
             }
-            if (!nearEnough(moveTowards, transform.position)) {
+
+
+            if (!nearEnough(moveTowards, transform.position, movementStartedOnEnemy ? 2f : 0.001f)) {
                 /**
                  * if the player is further away from the position that he wanted to move towards, then we
                  * calculate relatively what direction that point is from the player, to try to move that way
@@ -139,9 +147,9 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    bool nearEnough(Vector3 target, Vector3 currentPosition) {
+    bool nearEnough(Vector3 target, Vector3 currentPosition, float distance = 0.001f) {
         target.y = 0f;
         currentPosition.y = 0f;
-        return Vector3.Distance(currentPosition, target) < 0.001f;
+        return Vector3.Distance(currentPosition, target) < distance;
     }
 }
