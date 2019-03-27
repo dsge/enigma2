@@ -21,6 +21,7 @@ public class PlayerMovement : MonoBehaviour
     private CharacterController controller;
 
     private BasicEnemySpawner spawner;
+    private EnemyHpTopbarDisplay enemyHpTopBarDisplay;
 
     public float speed = 10.0f;
     public float gravity = 20.0f;
@@ -31,6 +32,7 @@ public class PlayerMovement : MonoBehaviour
         gameObject.transform.position = new Vector3(0, 5, 0);
 
         spawner = GameObject.Find("global components handler").GetComponent<BasicEnemySpawner>();
+        enemyHpTopBarDisplay = GameObject.Find("global components handler").GetComponent<EnemyHpTopbarDisplay>();
     }
 
     void Update()
@@ -60,7 +62,7 @@ public class PlayerMovement : MonoBehaviour
 
                         if (nearEnough(moveTowards, transform.position, 2f)) {
                             GameObject enemy = hitInfo.transform.parent.gameObject;
-                            spawner.removeEnemy(enemy);
+                            hitEnemy(enemy);
                         }
                     }
                     else {
@@ -127,6 +129,14 @@ public class PlayerMovement : MonoBehaviour
         colorEnemiesOnHover();
     }
 
+    void hitEnemy(GameObject enemy) {
+        Health enemyHealth = enemy.GetComponent<Health>();
+        enemyHealth.damageFor(10);
+        if (enemyHealth.isDead()) {
+            spawner.removeEnemy(enemy);
+        }
+    }
+
     void colorEnemiesOnHover() {
         /**
          * turn all enemies into the default color...
@@ -134,16 +144,23 @@ public class PlayerMovement : MonoBehaviour
         foreach (var enemy in spawner.getEnemies()) {
             enemy.transform.Find("Cylinder").GetComponent<Renderer>().material.color = new Color(255, 255, 255);
         }
-        /**
-         * ...but turn the one we are pointing at green
-         */
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hitInfo;
         if (Physics.Raycast(ray, out hitInfo, 100000f, Layers.ENEMIES)){
-            hitInfo
-                .transform
-                .gameObject
-                .GetComponent<Renderer>().material.color = new Color(0, 255, 0);
+            GameObject enemy = hitInfo.transform.parent.gameObject;
+            /**
+            * ...but turn the one we are pointing at green...
+            */
+            enemy.transform.Find("Cylinder").GetComponent<Renderer>().material.color = new Color(0, 255, 0);
+            /**
+             * ...and also display his HP on the overlay UI
+             */
+            enemyHpTopBarDisplay.setTrackedEnemy(enemy);
+        } else {
+            /**
+             * but reset the HP overlay UI if no enemy is pointed at currently
+             */
+            enemyHpTopBarDisplay.setTrackedEnemy();
         }
     }
     /**

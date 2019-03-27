@@ -29,6 +29,7 @@ public class BasicEnemySpawner : MonoBehaviour
             float angle = i * Mathf.PI * 2 / numberOfEnemiesToSpawn;
             Vector3 pos = new Vector3(Mathf.Cos(angle), 0.1f, Mathf.Sin(angle)) * 5f;
             GameObject enemy = Instantiate (enemyTemplate, pos + spawnCircleOffset, Quaternion.identity);
+            enemy.AddComponent(typeof(Health));
             /**
              * we need to store a reference to the spawned enemy to keep track of him later
              */
