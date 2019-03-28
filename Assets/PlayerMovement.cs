@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -23,6 +23,8 @@ public class PlayerMovement : MonoBehaviour
     private BasicEnemySpawner spawner;
     private EnemyHpTopbarDisplay enemyHpTopBarDisplay;
 
+    private Animator animator;
+
     public float speed = 10.0f;
     public float gravity = 20.0f;
     void Start()
@@ -33,6 +35,8 @@ public class PlayerMovement : MonoBehaviour
 
         spawner = GameObject.Find("global components handler").GetComponent<BasicEnemySpawner>();
         enemyHpTopBarDisplay = GameObject.Find("global components handler").GetComponent<EnemyHpTopbarDisplay>();
+
+        animator = GameObject.Find("Weapon").GetComponent<Animator>();
     }
 
     void Update()
@@ -130,6 +134,7 @@ public class PlayerMovement : MonoBehaviour
     }
 
     void hitEnemy(GameObject enemy) {
+        animator.SetTrigger("Attack");
         Health enemyHealth = enemy.GetComponent<Health>();
         enemyHealth.damageFor(10);
         if (enemyHealth.isDead()) {
