@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,18 +6,19 @@ public class PlayerMovement : MonoBehaviour
 {
     GameObject playerCharacter;
     /**
-     * the point that the player intends to move to
+     * the point on the ground that the player intends to move to
+     *
+     * this implicitly means that we are not walking towards any specific GameObject
      */
-    private Vector3 moveTowards = Vector3.zero;
+    private Vector3 moveTowardsPointOnGround;
     /**
-     * the player initially started the movement by clicking on an enemy
+     * the gameobject that we are moving towards (e.g. chasing this enemy or moving towards this door)
+     *
+     * this implicitly means that we are not walking towards a random point on the ground
      */
-    private bool movementStartedOnEnemy = false;
-    /**
-     * the player initially started the movement by clicking on the ground
-     */
-    private bool movementStartedOnGround = false;
-    private Vector3 moveDirection = Vector3.zero;
+    private GameObject moveTowardsGameObject;
+
+    private Vector3 moveDirectionInPreviousFrame = Vector3.zero;
     private CharacterController controller;
 
     private BasicEnemySpawner spawner;
@@ -38,99 +39,121 @@ public class PlayerMovement : MonoBehaviour
 
         animator = GameObject.Find("Weapon").GetComponent<Animator>();
     }
+    /**
+     * which direction should the player move in this frame?
+     *
+     * @param Vector3 targetPoint the global point that we want to move towards
+     */
+    protected Vector3 calculateMoveDirection(Vector3 targetPoint) {
+        if (!controller.isGrounded) {
+            return moveDirectionInPreviousFrame;
+        }
+        Vector3 moveDirection;
+        if (!nearEnough(targetPoint, transform.position, 0.01f)) {
+            /**
+            * if the player is further away from the position that he wanted to move towards, then we
+            * calculate relatively what direction that point is from the player, to try to move that way
+            */
+            moveDirection = (targetPoint - transform.position).normalized;
+        } else {
+            /**
+            * if the player is at the point that he wanted to move towards, then we won't move relatively at all
+            */
+            moveDirection = Vector3.zero;
+        }
+        /**
+        * Transforms direction from local space to world space.
+        */
+        moveDirection = transform.TransformDirection(moveDirection);
+        moveDirection = moveDirection * speed;
+
+        if (targetPoint.y > transform.position.y) {
+            /**
+            * if the player tries to move towards a position that is higher up then we don't want him to "jump" towards that higher point
+            *
+            * going on even ground or going down (into the ground) should not be problematic like that
+            */
+            moveDirection.y = 0;
+        }
+
+        /**
+        * Look in the direction that we are moving...
+        */
+        playerCharacter.transform.LookAt(targetPoint);
+        /**
+        * but do not look up or down
+        */
+        playerCharacter.transform.eulerAngles = new Vector3(0, playerCharacter.transform.eulerAngles.y, playerCharacter.transform.eulerAngles.z);
+        return moveDirection;
+    }
 
     void Update()
     {
-        /**
-         * Was the CharacterController touching the ground during the last move?
-         */
-        if (controller.isGrounded)
-        {
-            /**
-             * Returns whether the given mouse button is held down.
-             */
-            if (Input.GetMouseButton(0))
-            {
-                if (!movementStartedOnEnemy) {
-                    Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        moveTowardsGameObject = calculateObjectToMoveTowards();
+        moveTowardsPointOnGround = calculatePointOnGroundToMoveTowards();
 
-                    RaycastHit hitInfo;
-                    if (!movementStartedOnGround && Physics.Raycast(ray, out hitInfo, 100000f, Layers.ENEMIES)){
-                        /**
-                        * the player clicked on an enemy
-                        *
-                        * save the point that he wanted to move towards
-                        */
-                        moveTowards = hitInfo.transform.parent.gameObject.transform.position;
-                        movementStartedOnEnemy = true;
+        Vector3 moveDirection = moveDirectionInPreviousFrame;
+        moveDirection.x = 0;
+        moveDirection.z = 0;
 
-                        if (nearEnough(moveTowards, transform.position, 2f)) {
-                            GameObject enemy = hitInfo.transform.parent.gameObject;
-                            hitEnemy(enemy);
-                        }
-                    }
-                    else {
-                        if (!movementStartedOnEnemy && Physics.Raycast(ray, out hitInfo, 100000f, Layers.GROUND)){
-                            /**
-                            * the player clicked on a Collider (any Collider)
-                            *
-                            * save the point that he wanted to move towards
-                            */
-                            moveTowards = hitInfo.point;
-                            movementStartedOnGround = true;
-                        }
-                    }
-                }
-            } else {
-                movementStartedOnEnemy = false;
-                movementStartedOnGround = false;
-            }
-
-
-            if (!nearEnough(moveTowards, transform.position, movementStartedOnEnemy ? 2f : 0.001f)) {
-                /**
-                 * if the player is further away from the position that he wanted to move towards, then we
-                 * calculate relatively what direction that point is from the player, to try to move that way
-                 */
-                moveDirection = (moveTowards - transform.position).normalized;
-            } else {
-                /**
-                 * if the player is at the point that he wanted to move towards, then we won't move relatively at all
-                 */
-                moveDirection = Vector3.zero;
-            }
-            /**
-             * Transforms direction from local space to world space.
-             */
-            moveDirection = transform.TransformDirection(moveDirection);
-            moveDirection = moveDirection * speed;
-
-            if (moveTowards.y > transform.position.y) {
-                /**
-                 * if the player tries to move towards a position that is higher up then we don't want him to "jump" towards that higher point
-                 *
-                 * going on even ground or going down (into the ground) should not be problematic like that
-                 */
-                moveDirection.y = 0;
-            }
-
-            /**
-             * Look in the direction that we are moving...
-             */
-            playerCharacter.transform.LookAt(moveTowards);
-            /**
-             * but do not look up or down
-             */
-            playerCharacter.transform.eulerAngles = new Vector3(0, playerCharacter.transform.eulerAngles.y, playerCharacter.transform.eulerAngles.z);
+        if (!moveTowardsPointOnGround.Equals(Vector3.zero)){
+            //moveDirection = calculateMoveDirection(moveTowardsPointOnGround);
+        }
+        if (moveTowardsGameObject) {
+            moveDirection = calculateMoveDirection(moveTowardsGameObject.transform.position);
         }
         /**
          * keep moving even in the air
          */
         moveDirection.y = moveDirection.y - (gravity * Time.deltaTime);
         controller.Move(moveDirection * Time.deltaTime);
-
-
+        moveDirectionInPreviousFrame = moveDirection;
         colorEnemiesOnHover();
+    }
+
+    GameObject calculateObjectToMoveTowards() {
+        if (!controller.isGrounded) {
+            return null;
+        }
+        if (moveTowardsGameObject != null) {
+            if (Input.GetMouseButtonUp(0)) {
+                return null;
+            } else {
+                return moveTowardsGameObject;
+            }
+        }
+        if (Input.GetMouseButtonDown(0)) {
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hitInfo;
+            if (Physics.Raycast(ray, out hitInfo, 100000f, Layers.ENEMIES)){
+                /**
+                * the player clicked on an enemy
+                *
+                * save the point that he wanted to move towards
+                */
+                return hitInfo.transform.parent.gameObject;
+
+                /* if (nearEnough(moveTowards, transform.position, 2f)) {
+                    GameObject enemy = hitInfo.transform.parent.gameObject;
+                    hitEnemy(enemy);
+                }*/
+            }
+        }
+        return null;
+    }
+    Vector3 calculatePointOnGroundToMoveTowards() {
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+        RaycastHit hitInfo;
+        if (Physics.Raycast(ray, out hitInfo, 100000f, Layers.GROUND)){
+            /**
+            * the player clicked on a Collider (any Collider)
+            *
+            * save the point that he wanted to move towards
+            */
+            return hitInfo.point;
+        }
+        return Vector3.zero;
     }
 
     void hitEnemy(GameObject enemy) {
