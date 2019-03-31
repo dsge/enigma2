@@ -24,6 +24,8 @@ public class PlayerMovement : MonoBehaviour
     private BasicEnemySpawner spawner;
     private EnemyHpTopbarDisplay enemyHpTopBarDisplay;
 
+    protected PlayerAction currentAction;
+
     private Animator animator;
 
     public float speed = 10.0f;
@@ -89,19 +91,27 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        moveTowardsGameObject = calculateObjectToMoveTowards();
-        moveTowardsPointOnGround = calculatePointOnGroundToMoveTowards();
-
-        Vector3 moveDirection = moveDirectionInPreviousFrame;
-        moveDirection.x = 0;
-        moveDirection.z = 0;
-
-        if (!moveTowardsPointOnGround.Equals(Vector3.zero)){
-            //moveDirection = calculateMoveDirection(moveTowardsPointOnGround);
+        GameObject playerClickedOnObject = calculatePlayerClickedObject();
+        Vector3 pointOnGroundToMoveTowards = calculatePointOnGroundToMoveTowards();
+        if (currentAction != null) {
+            if (!currentAction.isMovingTowardsPointOnGround()) {
+                /**
+                * We were apparently already chasing an enemy without releasing a mouse button (meaning "go there and keep hitting the enemy"),
+                * but then we suddently pointed at another enemy - in this case we still keep hitting the original enemy, so no change.
+                */
+            } else {
+                /**
+                 * We were previously moving towards a point on the ground but now we are suddenly pointing at an enemy instead.
+                 * In this case we want to target that enemy the same way as if the mousedown started on it.
+                 */
+            }
+        } else {
+            /**
+             * We were not doing anything so we are free to target the enemy
+             */
         }
-        if (moveTowardsGameObject) {
-            moveDirection = calculateMoveDirection(moveTowardsGameObject.transform.position);
-        }
+
+        Vector3 moveDirection = Vector3.zero;
         /**
          * keep moving even in the air
          */
@@ -111,16 +121,23 @@ public class PlayerMovement : MonoBehaviour
         colorEnemiesOnHover();
     }
 
+    GameObject calculatePlayerClickedObject() {
+        if (Input.GetMouseButtonDown(0)) {
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hitInfo;
+            if (Physics.Raycast(ray, out hitInfo, 100000f, Layers.ENEMIES)){
+                /**
+                * the player clicked on an enemy
+                */
+                return hitInfo.transform.parent.gameObject;
+            }
+        }
+        return null;
+    }
+
     GameObject calculateObjectToMoveTowards() {
         if (!controller.isGrounded) {
             return null;
-        }
-        if (moveTowardsGameObject != null) {
-            if (Input.GetMouseButtonUp(0)) {
-                return null;
-            } else {
-                return moveTowardsGameObject;
-            }
         }
         if (Input.GetMouseButtonDown(0)) {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -131,12 +148,19 @@ public class PlayerMovement : MonoBehaviour
                 *
                 * save the point that he wanted to move towards
                 */
-                return hitInfo.transform.parent.gameObject;
-
-                /* if (nearEnough(moveTowards, transform.position, 2f)) {
-                    GameObject enemy = hitInfo.transform.parent.gameObject;
-                    hitEnemy(enemy);
-                }*/
+                GameObject ret = hitInfo.transform.parent.gameObject;
+                if (meleeRange(ret)) {
+                    return null;
+                } else {
+                    return ret;
+                }
+            }
+        }
+        if (moveTowardsGameObject != null) {
+            if (meleeRange(moveTowardsGameObject)) {
+                return null;
+            } else {
+                return moveTowardsGameObject;
             }
         }
         return null;
@@ -163,6 +187,12 @@ public class PlayerMovement : MonoBehaviour
         if (enemyHealth.isDead()) {
             spawner.removeEnemy(enemy);
         }
+    }
+    /**
+     * is an enemy in melee range relative to the player?
+     */
+    bool meleeRange(GameObject enemy) {
+        return nearEnough(enemy.transform.position, transform.position, 2f);
     }
 
     void colorEnemiesOnHover() {
