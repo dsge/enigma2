@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerMovement : MonoBehaviour
+public class PlayerInteractions : MonoBehaviour
 {
     GameObject playerCharacter;
     /**
@@ -28,8 +28,8 @@ public class PlayerMovement : MonoBehaviour
 
     private Animator animator;
 
-    public float speed = 10.0f;
-    public float gravity = 20.0f;
+    protected float speed = 6.0f;
+    protected float gravity = 20.0f;
     void Start()
     {
         playerCharacter = GameObject.Find("playerCharacter");
@@ -89,29 +89,72 @@ public class PlayerMovement : MonoBehaviour
         return moveDirection;
     }
 
-    void Update()
-    {
-        GameObject playerClickedOnObject = calculatePlayerClickedObject();
-        Vector3 pointOnGroundToMoveTowards = calculatePointOnGroundToMoveTowards();
-        if (currentAction != null) {
-            if (!currentAction.isMovingTowardsPointOnGround()) {
+    PlayerAction calculateCurrentAction(PlayerAction ongoingAction) {
+        if (ongoingAction != null) {
+            if (!ongoingAction.isMovingTowardsPointOnGround()) {
                 /**
-                * We were apparently already chasing an enemy without releasing a mouse button (meaning "go there and keep hitting the enemy"),
-                * but then we suddently pointed at another enemy - in this case we still keep hitting the original enemy, so no change.
+                * we are chasing an enemy
                 */
+                if (ongoingAction.releasedMouseButtonSinceActionStarted) {
+                    /**
+                     * we were chasing an enemy but we want to switch targets now
+                     */
+                    PlayerAction ret = calculateNewPlayerAction();
+                    if (ret != null) {
+                        return ret;
+                    }
+                } else {
+                    /*
+                    * We were apparently already chasing an enemy without releasing a mouse button (meaning "go there and keep hitting the enemy"),
+                    * but then we suddently pointed at another enemy - in this case we still keep hitting the original enemy, so no change.
+                    */
+                }
             } else {
                 /**
                  * We were previously moving towards a point on the ground but now we are suddenly pointing at an enemy instead.
                  * In this case we want to target that enemy the same way as if the mousedown started on it.
                  */
+                PlayerAction ret = calculateNewPlayerAction();
+                if (ret != null) {
+                    return ret;
+                }
             }
         } else {
             /**
              * We were not doing anything so we are free to target the enemy
              */
+            PlayerAction ret = calculateNewPlayerAction();
+            if (ret != null) {
+                return ret;
+            }
         }
+        return ongoingAction;
+    }
 
-        Vector3 moveDirection = Vector3.zero;
+    protected PlayerAction calculateNewPlayerAction() {
+        GameObject playerClickedObject = calculatePlayerClickedObject();
+        if (playerClickedObject != null) {
+            return new PlayerAction(playerClickedObject);
+        }
+        Vector3 pointOnGroundToMoveTowards = calculatePointOnGroundToMoveTowards();
+        if (!pointOnGroundToMoveTowards.Equals(Vector3.zero)) {
+            return new PlayerAction(pointOnGroundToMoveTowards);
+        }
+        return null;
+    }
+
+    void Update()
+    {
+        if (currentAction != null && Input.GetMouseButtonUp(0)) {
+            currentAction.releasedMouseButtonSinceActionStarted = true;
+        }
+        currentAction = calculateCurrentAction(currentAction);
+
+        Vector3 moveDirection = moveDirectionInPreviousFrame;
+        if (currentAction != null) {
+            Vector3 targetPosition = currentAction.getPosition();
+            moveDirection = calculateMoveDirection(targetPosition);
+        }
         /**
          * keep moving even in the air
          */
@@ -119,6 +162,16 @@ public class PlayerMovement : MonoBehaviour
         controller.Move(moveDirection * Time.deltaTime);
         moveDirectionInPreviousFrame = moveDirection;
         colorEnemiesOnHover();
+        if (currentAction != null && currentAction.isCompleted(gameObject)){
+            if (!currentAction.isMovingTowardsPointOnGround()) {
+                /**
+                 * if the action is completed and we were targeting a gameobject, then
+                 * we will assume that the gameobject was an enemy and we hit it
+                 */
+                hitEnemy(currentAction.getMoveTowardsGameObject());
+            }
+            currentAction = null;
+        }
     }
 
     GameObject calculatePlayerClickedObject() {
@@ -134,48 +187,16 @@ public class PlayerMovement : MonoBehaviour
         }
         return null;
     }
-
-    GameObject calculateObjectToMoveTowards() {
-        if (!controller.isGrounded) {
-            return null;
-        }
-        if (Input.GetMouseButtonDown(0)) {
+    Vector3 calculatePointOnGroundToMoveTowards() {
+        if (Input.GetMouseButton(0)) {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hitInfo;
-            if (Physics.Raycast(ray, out hitInfo, 100000f, Layers.ENEMIES)){
+            if (Physics.Raycast(ray, out hitInfo, 100000f, Layers.GROUND)){
                 /**
-                * the player clicked on an enemy
-                *
-                * save the point that he wanted to move towards
+                * the player clicked on a point on the "ground"
                 */
-                GameObject ret = hitInfo.transform.parent.gameObject;
-                if (meleeRange(ret)) {
-                    return null;
-                } else {
-                    return ret;
-                }
+                return hitInfo.point;
             }
-        }
-        if (moveTowardsGameObject != null) {
-            if (meleeRange(moveTowardsGameObject)) {
-                return null;
-            } else {
-                return moveTowardsGameObject;
-            }
-        }
-        return null;
-    }
-    Vector3 calculatePointOnGroundToMoveTowards() {
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-
-        RaycastHit hitInfo;
-        if (Physics.Raycast(ray, out hitInfo, 100000f, Layers.GROUND)){
-            /**
-            * the player clicked on a Collider (any Collider)
-            *
-            * save the point that he wanted to move towards
-            */
-            return hitInfo.point;
         }
         return Vector3.zero;
     }
@@ -191,9 +212,6 @@ public class PlayerMovement : MonoBehaviour
     /**
      * is an enemy in melee range relative to the player?
      */
-    bool meleeRange(GameObject enemy) {
-        return nearEnough(enemy.transform.position, transform.position, 2f);
-    }
 
     void colorEnemiesOnHover() {
         /**

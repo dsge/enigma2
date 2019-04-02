@@ -17,6 +17,8 @@ public class PlayerAction
      */
     private GameObject moveTowardsGameObject;
 
+    public bool releasedMouseButtonSinceActionStarted = false;
+
     public PlayerAction(GameObject moveTowardsGameObject){
         this.moveTowardsGameObject = moveTowardsGameObject;
     }
@@ -34,5 +36,29 @@ public class PlayerAction
         } else {
             return moveTowardsPointOnGround;
         }
+    }
+
+    public GameObject getMoveTowardsGameObject(){
+        return moveTowardsGameObject;
+    }
+
+    public bool isCompleted(GameObject player) {
+
+        if (moveTowardsGameObject) {
+            return meleeRange(moveTowardsGameObject, player);
+        } else {
+            return nearEnough(moveTowardsPointOnGround, player.transform.position);
+        }
+    }
+
+
+    bool meleeRange(GameObject enemy, GameObject player) {
+        return nearEnough(enemy.transform.position, player.transform.position, 2f);
+    }
+
+    bool nearEnough(Vector3 target, Vector3 currentPosition, float distance = 0.001f) {
+        target.y = 0f;
+        currentPosition.y = 0f;
+        return Vector3.Distance(currentPosition, target) < distance;
     }
 }
