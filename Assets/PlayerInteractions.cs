@@ -5,19 +5,6 @@ using UnityEngine;
 public class PlayerInteractions : MonoBehaviour
 {
     GameObject playerCharacter;
-    /**
-     * the point on the ground that the player intends to move to
-     *
-     * this implicitly means that we are not walking towards any specific GameObject
-     */
-    private Vector3 moveTowardsPointOnGround;
-    /**
-     * the gameobject that we are moving towards (e.g. chasing this enemy or moving towards this door)
-     *
-     * this implicitly means that we are not walking towards a random point on the ground
-     */
-    private GameObject moveTowardsGameObject;
-
     private Vector3 moveDirectionInPreviousFrame = Vector3.zero;
     private CharacterController controller;
 
