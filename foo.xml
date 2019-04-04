@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="2" result="Failed(Child)" total="2" passed="1" failed="1" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2019-04-04 16:54:48Z" end-time="2019-04-04 16:54:48Z" duration="0,0841952">
+  <test-suite type="TestSuite" id="1000" name="enigma2" fullname="enigma2" runstate="Runnable" testcasecount="2" result="Failed" site="Child" start-time="2019-04-04 16:54:48Z" end-time="2019-04-04 16:54:48Z" duration="0.084195" total="2" passed="1" failed="1" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <failure>
+      <message><![CDATA[One or more child tests had errors]]></message>
+    </failure>
+    <test-suite type="Assembly" id="1004" name="Tests.dll" fullname="/home/geri/workspace/enigma2/enigma2/Library/ScriptAssemblies/Tests.dll" runstate="Runnable" testcasecount="2" result="Failed" site="Child" start-time="2019-04-04 16:54:48Z" end-time="2019-04-04 16:54:48Z" duration="0.061994" total="2" passed="1" failed="1" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="11994" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+      </properties>
+      <failure>
+        <message><![CDATA[One or more child tests had errors]]></message>
+      </failure>
+      <test-suite type="TestSuite" id="1005" name="Tests" fullname="Tests" runstate="Runnable" testcasecount="2" result="Failed" site="Child" start-time="2019-04-04 16:54:48Z" end-time="2019-04-04 16:54:48Z" duration="0.053671" total="2" passed="1" failed="1" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <failure>
+          <message><![CDATA[One or more child tests had errors]]></message>
+        </failure>
+        <test-suite type="TestFixture" id="1001" name="NewTestScript" fullname="Tests.NewTestScript" classname="Tests.NewTestScript" runstate="Runnable" testcasecount="2" result="Failed" site="Child" start-time="2019-04-04 16:54:48Z" end-time="2019-04-04 16:54:48Z" duration="0.043422" total="2" passed="1" failed="1" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <failure>
+            <message><![CDATA[One or more child tests had errors]]></message>
+          </failure>
+          <test-case id="1002" name="NewTestScriptSimplePasses" fullname="Tests.NewTestScript.NewTestScriptSimplePasses" methodname="NewTestScriptSimplePasses" classname="Tests.NewTestScript" runstate="Runnable" seed="1055784722" result="Failed" label="Error" start-time="2019-04-04 16:54:48Z" end-time="2019-04-04 16:54:48Z" duration="0.012135" asserts="0">
+            <properties />
+            <failure>
+              <message><![CDATA[System.InvalidOperationException : Assert.Equals should not be used for Assertions]]></message>
+              <stack-trace><![CDATA[  at NUnit.Framework.Assert.Equals (System.Object a, System.Object b) [0x00001] in <59819be142c34115ade688f6962021f1>:0 
+  at Tests.NewTestScript.NewTestScriptSimplePasses () [0x00001] in /home/geri/workspace/enigma2/enigma2/Assets/Tests/NewTestScript.cs:15 
+  at (wrapper managed-to-native) System.Reflection.MonoMethod.InternalInvoke(System.Reflection.MonoMethod,object,object[],System.Exception&)
+  at System.Reflection.MonoMethod.Invoke (System.Object obj, System.Reflection.BindingFlags invokeAttr, System.Reflection.Binder binder, System.Object[] parameters, System.Globalization.CultureInfo culture) [0x00032] in <5edea3a8afdd4ea08b0edab4571cb211>:0 ]]></stack-trace>
+            </failure>
+          </test-case>
+          <test-case id="1003" name="NewTestScriptWithEnumeratorPasses" fullname="Tests.NewTestScript.NewTestScriptWithEnumeratorPasses" methodname="NewTestScriptWithEnumeratorPasses" classname="Tests.NewTestScript" runstate="Runnable" seed="748596098" result="Passed" start-time="2019-04-04 16:54:48Z" end-time="2019-04-04 16:54:48Z" duration="0.010944" asserts="0">
+            <properties>
+              <property name="_JOINTYPE" value="UnityCombinatorial" />
+            </properties>
+          </test-case>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>
