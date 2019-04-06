@@ -13,6 +13,8 @@ public class PlayerInteractions : MonoBehaviour
 
     protected PlayerAction currentAction;
 
+    protected BasicSceneSwitchHandler basicSceneSwitchHandler;
+
     private Animator animator;
 
     protected float speed = 6.0f;
@@ -25,6 +27,7 @@ public class PlayerInteractions : MonoBehaviour
 
         spawner = GameObject.Find("global components handler").GetComponent<BasicEnemySpawner>();
         enemyHpTopBarDisplay = GameObject.Find("global components handler").GetComponent<EnemyHpTopbarDisplay>();
+        basicSceneSwitchHandler = GameObject.Find("global components handler").GetComponent<BasicSceneSwitchHandler>();
 
         animator = GameObject.Find("Weapon").GetComponent<Animator>();
     }
@@ -147,18 +150,27 @@ public class PlayerInteractions : MonoBehaviour
          */
         moveDirection.y = moveDirection.y - (gravity * Time.deltaTime);
         controller.Move(moveDirection * Time.deltaTime);
-        moveDirectionInPreviousFrame = moveDirection;
         colorEnemiesOnHover();
         if (currentAction != null && currentAction.isCompleted(gameObject)){
             if (!currentAction.isMovingTowardsPointOnGround()) {
                 /**
-                 * if the action is completed and we were targeting a gameobject, then
-                 * we will assume that the gameobject was an enemy and we hit it
+                 * the action is completed and we were targeting a gameobject
                  */
-                hitEnemy(currentAction.getMoveTowardsGameObject());
+                GameObject moveTarget = currentAction.getMoveTowardsGameObject();
+                if (currentAction.movingTowardsWarppad()){
+                    basicSceneSwitchHandler.onWarpPadClick(moveTarget);
+                }else {
+                    hitEnemy(moveTarget);
+                }
             }
             currentAction = null;
+            /**
+             * do not continue to walk if the action was removed
+             */
+            moveDirection.x = 0;
+            moveDirection.z = 0;
         }
+        moveDirectionInPreviousFrame = moveDirection;
     }
 
     GameObject calculatePlayerClickedObject() {
@@ -170,6 +182,12 @@ public class PlayerInteractions : MonoBehaviour
                 * the player clicked on an enemy
                 */
                 return hitInfo.transform.parent.gameObject;
+            }
+            if (Physics.Raycast(ray, out hitInfo, 100000f, Layers.WARPPADS)){
+                /**
+                * the player clicked on a warppad
+                */
+                return hitInfo.transform.gameObject;
             }
         }
         return null;

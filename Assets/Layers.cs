@@ -11,4 +11,5 @@ class Layers {
      * bitmask for objects that are considered warppads or warp points that the user can click on to switch zones/areas
      */
     public const int WARPPADS = 1 << 11;
+    public const int WARPPADS_ID = 11;
 }

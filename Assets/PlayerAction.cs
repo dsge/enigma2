@@ -26,6 +26,17 @@ public class PlayerAction
         this.moveTowardsPointOnGround = moveTowardsPointOnGround;
     }
 
+    public bool movingTowardsWarppad(){
+        if (isMovingTowardsPointOnGround()){
+            return false;
+        }
+        if (this.moveTowardsGameObject.layer == Layers.WARPPADS_ID){
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public bool isMovingTowardsPointOnGround() {
         return moveTowardsGameObject == null;
     }
@@ -45,7 +56,11 @@ public class PlayerAction
     public bool isCompleted(GameObject player) {
 
         if (moveTowardsGameObject) {
-            return meleeRange(moveTowardsGameObject, player);
+            if (movingTowardsWarppad()){
+                return nearEnough(moveTowardsGameObject.transform.position, player.transform.position, 0.5f);
+            }else {
+                return meleeRange(moveTowardsGameObject, player);
+            }
         } else {
             return nearEnough(moveTowardsPointOnGround, player.transform.position);
         }

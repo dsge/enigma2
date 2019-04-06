@@ -17,6 +17,10 @@ public class BasicSceneSwitchHandler : MonoBehaviour
         warpPads.Add(Instantiate (warpPadTemplate, new Vector3(-10, 0, -10), Quaternion.identity));
     }
 
+    void onWarpPadClick(GameObject warpPad) {
+
+    }
+
     GameObject loadGameObjectFromResource(string resourceName){
         GameObject ret = Resources.Load(resourceName) as GameObject;
         if (ret == null) {
