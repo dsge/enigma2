@@ -51,6 +51,12 @@ public class BasicEnemySpawner : MonoBehaviour
             spawnedEnemies.Remove(enemy);
         }
     }
+    public void removeAllEnemies() {
+        spawnedEnemies.ForEach(delegate(GameObject enemy) {
+            Destroy(enemy);
+        });
+        spawnedEnemies.Clear();
+    }
     /**
      * what enemies are currently on the map?
      */
