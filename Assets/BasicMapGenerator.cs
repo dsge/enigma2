@@ -40,16 +40,28 @@ public class BasicMapGenerator : MonoBehaviour
         System.Random rnd = new System.Random();
         List<GameObject> ret = new List<GameObject>();
         /**
-         * a világ közepétől milyen távol legyen a generált pályarészek széle
+         * the edge of the map from the center of the world
          */
         Vector3 mapOffsetFromCenter = new Vector3(-35, 0, 0);
 
         for (int j = 0; j < mapSize.y; j++){
             for (int i = 0; i < mapSize.x; i++){
+                /**
+                 * randomize a mapPart that we will use
+                 */
                 GameObject prefab = mapPartTemplates[rnd.Next(mapPartTemplates.Count)];
+                /**
+                 * the estimated size of the mapPart
+                 */
                 Vector3 prefabBoundsSize = prefab.GetComponent<Renderer>().bounds.size;
+                /**
+                 * we will place it at the next spot in our map
+                 */
                 Vector3 position = new Vector3(-i * prefabBoundsSize.x, 0, -j * prefabBoundsSize.z) + mapOffsetFromCenter;
                 GameObject part = Instantiate (prefab, position, Quaternion.identity);
+                /**
+                 * we will store a reference to the generated part we could work with it later
+                 */
                 ret.Add(part);
             }
         }
