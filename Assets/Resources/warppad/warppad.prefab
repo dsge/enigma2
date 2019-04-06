@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3347284735647105867}
   - component: {fileID: 3969936840450556361}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: warppad
   m_TagString: Untagged
   m_Icon: {fileID: 0}
