@@ -18,23 +18,31 @@ public class BasicSceneSwitchHandler : MonoBehaviour
         warpPads.Add(Instantiate (warpPadTemplate, new Vector3(-10, 0, -10), Quaternion.identity));
     }
 
-    public void onWarpPadClick(GameObject warpPad) {
-        Scene scene = SceneManager.CreateScene("foo");
-        bool asd = scene.IsValid();
-        Scene previousScene = SceneManager.GetActiveScene();
-        SceneManager.SetActiveScene(scene);
+    Scene createOrFindSceneByName(string name) {
+        Scene ret = SceneManager.GetSceneByName(name);
+        if (!ret.IsValid()){
+            ret = SceneManager.CreateScene(name);
+        }
+        return ret;
+    }
+
+    public void teleportToBigHouse() {
+        Scene scene = createOrFindSceneByName("bigHouse");
+
         GameObject player = GameObject.Find("Player");
         GameObject global = GameObject.Find("global components handler");
         global.GetComponent<BasicEnemySpawner>().removeAllEnemies();
+
         Object.DontDestroyOnLoad(player);
         Object.DontDestroyOnLoad(global);
         SceneManager.MoveGameObjectToScene(global, scene);
         SceneManager.MoveGameObjectToScene(player, scene);
+        Scene previousScene = SceneManager.GetActiveScene();
+        SceneManager.SetActiveScene(scene);
         SceneManager.UnloadSceneAsync(previousScene);
 
-        GameObject bigHousePrefab = Resources.Load("big_house/big_house") as GameObject;
 
-        GameObject bigHouse = Instantiate(bigHousePrefab, new Vector3(0, 0, 0), Quaternion.identity);
+        GameObject bigHouse = Instantiate(loadGameObjectFromResource("big_house/big_house"), new Vector3(0, 0, 0), Quaternion.identity);
         bigHouse.transform.eulerAngles = new Vector3(0, 90, 0);
 
         GameObject lampObj = new GameObject("Lamp");
@@ -43,6 +51,10 @@ public class BasicSceneSwitchHandler : MonoBehaviour
         Light light = lampObj.AddComponent<Light>();
         light.type = LightType.Spot;
         light.range = 30.0f;
+    }
+
+    public void onWarpPadClick(GameObject warpPad) {
+        teleportToBigHouse();
     }
 
     GameObject loadGameObjectFromResource(string resourceName){
