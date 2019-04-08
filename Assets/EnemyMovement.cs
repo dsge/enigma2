@@ -21,6 +21,7 @@ public class EnemyMovement : MonoBehaviour
     void Update()
     {
         transform.LookAt(player);
+        transform.eulerAngles = new Vector3(0, transform.eulerAngles.y, transform.eulerAngles.z);
 
         actualDistance = Vector3.Distance(transform.position, player.position);
 
