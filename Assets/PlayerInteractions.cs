@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -181,7 +181,7 @@ public class PlayerInteractions : MonoBehaviour
                 /**
                 * the player clicked on an enemy
                 */
-                return hitInfo.transform.parent.gameObject;
+                return hitInfo.transform.gameObject;
             }
             if (Physics.Raycast(ray, out hitInfo, 100000f, Layers.WARPPADS)){
                 /**
@@ -228,7 +228,7 @@ public class PlayerInteractions : MonoBehaviour
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hitInfo;
         if (Physics.Raycast(ray, out hitInfo, 100000f, Layers.ENEMIES)){
-            GameObject enemy = hitInfo.transform.parent.gameObject;
+            GameObject enemy = hitInfo.transform.gameObject;
             /**
             * ...but turn the one we are pointing at green...
             */

@@ -14,7 +14,7 @@ public class BasicEnemySpawner : MonoBehaviour
         /**
          * this is the enemy that we will duplicate
          */
-        GameObject enemyTemplate = Resources.Load("Enemy") as GameObject;
+        GameObject enemyTemplate = Resources.Load("BasicEnemy") as GameObject;
 
         int numberOfEnemiesToSpawn = 5;
         /**
