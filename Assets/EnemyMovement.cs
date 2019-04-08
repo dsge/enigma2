@@ -25,13 +25,13 @@ public class EnemyMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        transform.LookAt(player);
-        transform.eulerAngles = new Vector3(0, transform.eulerAngles.y, transform.eulerAngles.z);
-
         actualDistance = Vector3.Distance(transform.position, player.position);
 
         if (actualDistance >= minDistance && actualDistance <= maxDistance)
         {
+            transform.LookAt(player);
+            transform.eulerAngles = new Vector3(0, transform.eulerAngles.y, transform.eulerAngles.z);
+
             navMeshAgent.enabled = true;
             navMeshAgent.SetDestination(player.position);
         }
