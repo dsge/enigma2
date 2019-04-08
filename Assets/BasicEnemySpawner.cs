@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class BasicEnemySpawner : MonoBehaviour
 {
@@ -30,6 +31,7 @@ public class BasicEnemySpawner : MonoBehaviour
             Vector3 pos = new Vector3(Mathf.Cos(angle), 0.1f, Mathf.Sin(angle)) * 5f;
             GameObject enemy = Instantiate (enemyTemplate, pos + spawnCircleOffset, Quaternion.identity);
             enemy.AddComponent(typeof(Health));
+            enemy.AddComponent(typeof(NavMeshAgent));
             /**
              * we need to store a reference to the spawned enemy to keep track of him later
              */

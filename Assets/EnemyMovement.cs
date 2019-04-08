@@ -1,20 +1,25 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class EnemyMovement : MonoBehaviour
 {
     public Transform player;
+    private NavMeshAgent navMeshAgent;
 
-    public float movementSpeed = 7.5f;
-    public float minDistance = 1;
-    public float maxDistance = 10;
-    public float actualDistance;
+    private float movementSpeed = 2.5f;
+    private float minDistance = 1;
+    private float maxDistance = 5;
+    private float actualDistance;
 
     // Start is called before the first frame update
     void Start()
     {
-        player = GameObject.Find("Player").transform;   
+        player = GameObject.Find("Player").transform;
+        navMeshAgent = GetComponent<NavMeshAgent>();
+
+        navMeshAgent.Warp(transform.position);
     }
 
     // Update is called once per frame
@@ -27,7 +32,12 @@ public class EnemyMovement : MonoBehaviour
 
         if (actualDistance >= minDistance && actualDistance <= maxDistance)
         {
-            transform.position += transform.forward * movementSpeed * Time.deltaTime;
+            navMeshAgent.enabled = true;
+            navMeshAgent.SetDestination(player.position);
+        }
+        else
+        {
+            navMeshAgent.enabled = false;
         }
     }
 }

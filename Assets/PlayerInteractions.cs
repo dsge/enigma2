@@ -223,7 +223,7 @@ public class PlayerInteractions : MonoBehaviour
          * turn all enemies into the default color...
          */
         foreach (var enemy in spawner.getEnemies()) {
-            enemy.transform.Find("Cylinder").GetComponent<Renderer>().material.color = new Color(255, 255, 255);
+            enemy.transform.Find("Cylinder").GetComponent<Renderer>().material.color = new Color(0.3f, 0.3f, 0.3f);
         }
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hitInfo;
