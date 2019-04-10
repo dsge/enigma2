@@ -33,6 +33,11 @@ public class BasicEnemySpawner : MonoBehaviour
             enemy.AddComponent(typeof(Health));
             enemy.AddComponent(typeof(NavMeshAgent));
             /**
+             * we need to set the NavMeshAgent's height and baseOffset to stop the enemy sunk in the ground
+             */
+            GetComponent<NavMeshAgent>().height = 1.0f;
+            GetComponent<NavMeshAgent>().baseOffset = 1.0f;
+            /**
              * we need to store a reference to the spawned enemy to keep track of him later
              */
             spawnedEnemies.Add(enemy);
