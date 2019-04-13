@@ -12,7 +12,7 @@ namespace Tests
         [Test]
         public void NewTestScriptSimplePasses()
         {
-            Assert.Equals("foo", "foo");
+            Assert.AreEqual("foo", "foo");
             // Use the Assert class to test conditions
         }
 
