@@ -5,13 +5,25 @@ using UnityEngine.SceneManagement;
 
 public class BasicSceneSwitchHandler : MonoBehaviour
 {
+    GameObject globalComponentsHandler;
     List<GameObject> warpPads = new List<GameObject>();
     GameObject warpPadTemplate;
     void Start()
     {
+        globalComponentsHandler = createGlobalComponentsHandler();
         this.warpPadTemplate = loadGameObjectFromResource("warppad/warppad");
         this.warpPadTemplate.transform.localScale = new Vector3(2.5f, 2.5f, 2.5f);
         placeWarppad();
+    }
+
+    GameObject createGlobalComponentsHandler() {
+        return new GameObject("global components handler", new System.Type[] {
+            typeof(FPSDisplay),
+            typeof(BasicEnemySpawner),
+            typeof(EnemyHpTopbarDisplay),
+            typeof(BasicMapGenerator)
+        });
+
     }
 
     void placeWarppad() {
@@ -53,8 +65,36 @@ public class BasicSceneSwitchHandler : MonoBehaviour
         light.range = 30.0f;
     }
 
+    public List<string> getZones() {
+        List<string> ret = new List<string>();
+        ret.Add("bigHouse");
+        ret.Add("SampleScene");
+        return ret;
+    }
+
     public void onWarpPadClick(GameObject warpPad) {
         teleportToBigHouse();
+    }
+
+    public void warpToZone(string zoneName, WarpTarget target = null){
+        if (!getZones().Contains(zoneName)) {
+            throw new System.ArgumentException(System.String.Format("invalid zoneName ({0})", zoneName), "zoneName");
+        }
+        Scene currentScene = SceneManager.GetActiveScene();
+        Scene targetScene = createOrFindSceneByName(zoneName);
+        if (!currentScene.Equals(targetScene)){
+
+        }
+    }
+
+    protected void switchScenes(Scene currentScene, Scene targetScene) {
+        GameObject player = GameObject.Find("Player");
+        GameObject global = GameObject.Find("global components handler");
+
+        Object.DontDestroyOnLoad(player);
+        Object.DontDestroyOnLoad(global);
+        SceneManager.MoveGameObjectToScene(global, targetScene);
+        SceneManager.MoveGameObjectToScene(player, targetScene);
     }
 
     GameObject loadGameObjectFromResource(string resourceName){
