@@ -32,6 +32,7 @@ public class BasicEnemySpawner : MonoBehaviour
             GameObject enemy = Instantiate (enemyTemplate, pos + spawnCircleOffset, Quaternion.identity);
             enemy.AddComponent(typeof(Health));
             enemy.AddComponent(typeof(NavMeshAgent));
+            enemy.AddComponent(typeof(EnemyMovement));
             /**
              * we need to set the NavMeshAgent's height and baseOffset to stop the enemy sunk in the ground
              */
@@ -47,7 +48,7 @@ public class BasicEnemySpawner : MonoBehaviour
      * this should be called to "kill" the enemy
      */
     public void removeEnemy(GameObject enemy) {
-        if (spawnedEnemies.Contains(enemy)) {
+        if (spawnedEnemies != null && spawnedEnemies.Contains(enemy)) {
             /**
              * destroy the gameobject
              */
@@ -59,10 +60,12 @@ public class BasicEnemySpawner : MonoBehaviour
         }
     }
     public void removeAllEnemies() {
-        spawnedEnemies.ForEach(delegate(GameObject enemy) {
-            Destroy(enemy);
-        });
-        spawnedEnemies.Clear();
+        if (spawnedEnemies != null) {
+            spawnedEnemies.ForEach(delegate(GameObject enemy) {
+                Destroy(enemy);
+            });
+            spawnedEnemies.Clear();
+        }
     }
     /**
      * what enemies are currently on the map?
