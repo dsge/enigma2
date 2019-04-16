@@ -8,8 +8,9 @@ public class BasicSceneSwitchHandler : MonoBehaviour
     public static string GLOBAL_COMPONENTS_HANDLER_NAME = "global components handler";
     GameObject globalComponentsHandler;
     GameObject player;
-    List<GameObject> warpPads = new List<GameObject>();
     GameObject warpPadTemplate;
+
+    List<WorldZone> zones;
 
     /**
      * did the init() function run already?
@@ -21,9 +22,6 @@ public class BasicSceneSwitchHandler : MonoBehaviour
          * this was probably already ran by warpToZone() but it doesn't hurt to run it here, just in case
          */
         this.init();
-        this.warpPadTemplate = this.loadGameObjectFromResource("warppad/warppad");
-        this.warpPadTemplate.transform.localScale = new Vector3(2.5f, 2.5f, 2.5f);
-        this.placeWarppad();
     }
 
     void init() {
@@ -33,6 +31,9 @@ public class BasicSceneSwitchHandler : MonoBehaviour
         this.inited = true;
         this.globalComponentsHandler = this.attachGlobalComponents(this.gameObject);
         this.player = createPlayer();
+
+        this.warpPadTemplate = this.loadGameObjectFromResource("warppad/warppad");
+        this.warpPadTemplate.transform.localScale = new Vector3(2.5f, 2.5f, 2.5f);
     }
 
     protected GameObject attachGlobalComponents(GameObject globalComponentsHandler) {
@@ -44,6 +45,12 @@ public class BasicSceneSwitchHandler : MonoBehaviour
     protected void tmpCreateBigHouseScene() {
         GameObject bigHouse = Instantiate(loadGameObjectFromResource("big_house/big_house"), new Vector3(0, 0, 0), Quaternion.identity);
         bigHouse.transform.eulerAngles = new Vector3(0, 90, 0);
+
+        List<WorldZone> zones = this.getZones();
+
+        (Instantiate(this.warpPadTemplate, new Vector3(-10, 0, -10), Quaternion.identity)
+            .AddComponent(typeof(WarpPadWarpTargetHandler)) as WarpPadWarpTargetHandler)
+            .warpTarget = new WarpTarget(zones[1], new Vector3(0, 1.5f, 0));
     }
 
     protected void tmpCreateSampleScene(){
@@ -51,29 +58,34 @@ public class BasicSceneSwitchHandler : MonoBehaviour
             typeof(BasicMapGenerator),
             typeof(BasicEnemySpawner),
         });
+
+        List<WorldZone> zones = this.getZones();
+
+        (Instantiate(this.warpPadTemplate, new Vector3(-10, 0, -10), Quaternion.identity)
+            .AddComponent(typeof(WarpPadWarpTargetHandler)) as WarpPadWarpTargetHandler)
+            .warpTarget = new WarpTarget(zones[0], new Vector3(0, 1.5f, 0));
+
+        (Instantiate(this.warpPadTemplate, new Vector3(15, 0, -15), Quaternion.identity)
+            .AddComponent(typeof(WarpPadWarpTargetHandler)) as WarpPadWarpTargetHandler)
+            .warpTarget = new WarpTarget(zones[1], new Vector3(5, 0, -15));
+
+        (Instantiate(this.warpPadTemplate, new Vector3(5, 0, -15), Quaternion.identity)
+            .AddComponent(typeof(WarpPadWarpTargetHandler)) as WarpPadWarpTargetHandler)
+            .warpTarget = new WarpTarget(zones[1], new Vector3(15, 0, -15));
     }
 
     public GameObject getPlayer() {
         return this.player;
     }
 
-    void placeWarppad() {
-        warpPads.Add(Instantiate (warpPadTemplate, new Vector3(-10, 0, -10), Quaternion.identity));
-    }
-
     IEnumerator createOrLoadSceneByName(string name, System.Action<Scene> resultCallback) {
-        AsyncOperation asyncLoad = null;
-        try {
-            asyncLoad = SceneManager.LoadSceneAsync(name);
-            asyncLoad.allowSceneActivation = false;
-        } catch (System.Exception e) {
-            Debug.Log("foo");
-        }
+        AsyncOperation asyncLoad = this.loadSceneByNameIfNecessary(name);
         if (asyncLoad != null) {
-            while (!asyncLoad.isDone && asyncLoad.progress < 0.9f)
+            while (!asyncLoad.isDone /*&& asyncLoad.progress < 0.9f*/)
             {
                 yield return null;
             }
+            // asyncLoad.allowSceneActivation = true;
         }
         Scene ret = SceneManager.GetSceneByName(name);
         if (!ret.IsValid()){
@@ -81,6 +93,24 @@ public class BasicSceneSwitchHandler : MonoBehaviour
         }
         resultCallback(ret);
         yield return null;
+    }
+
+    protected AsyncOperation loadSceneByNameIfNecessary(string name) {
+        AsyncOperation ret = null;
+        Scene scene = SceneManager.GetSceneByName(name);
+        if (scene.IsValid()){
+            /**
+             * we already have that scene loaded, no need to load it again
+             */
+            return null;
+        }
+        try {
+            ret = SceneManager.LoadSceneAsync(name, LoadSceneMode.Additive);
+            // ret.allowSceneActivation = false;
+        } catch (System.Exception e) {
+            Debug.LogException(e);
+        }
+        return ret;
     }
     /**
      * create the player GameObject which (for now) will be persistent in all scenes
@@ -100,38 +130,38 @@ public class BasicSceneSwitchHandler : MonoBehaviour
         return ret;
     }
 
-    public List<string> getZones() {
-        List<string> ret = new List<string>();
-        ret.Add("bigHouse");
-        ret.Add("SampleScene");
-        return ret;
+    public List<WorldZone> getZones() {
+        if (this.zones == null) {
+            this.zones = new List<WorldZone>();
+            this.zones.Add(new WorldZone("bigHouse"));
+            this.zones.Add(new WorldZone("SampleScene"));
+        }
+        return this.zones;
     }
 
     public void onWarpPadClick(GameObject warpPad) {
         Scene currentScene = SceneManager.GetActiveScene();
 
-        if (currentScene.name != "bigHouse") {
-            warpToZone("bigHouse");
-        } else {
-            warpToZone("SampleScene");
+        WarpPadWarpTargetHandler handler = warpPad.GetComponent<WarpPadWarpTargetHandler>();
+
+        if (handler != null && handler.warpTarget != null) {
+            this.warpToZone(handler.warpTarget);
         }
+
     }
 
-    public void warpToZone(string zoneName, WarpTarget target = null){
-        if (!getZones().Contains(zoneName)) {
-            throw new System.ArgumentException(System.String.Format("invalid zoneName ({0})", zoneName), "zoneName");
+    public void warpToZone(WarpTarget target){
+        if (!getZones().Contains(target.getZone())) {
+            throw new System.ArgumentException(System.String.Format("invalid zoneName ({0})", target.getZone().sceneName), "zoneName");
         }
         this.init();
         Scene currentScene = SceneManager.GetActiveScene();
-        StartCoroutine(createOrLoadSceneByName(zoneName, delegate(Scene scene) {
+        StartCoroutine(createOrLoadSceneByName(target.getZone().sceneName, delegate(Scene scene) {
             Scene targetScene = scene;
             if (!currentScene.Equals(targetScene)){
                 this.switchScenes(currentScene, targetScene);
             } else {
 
-            }
-            if (target == null) {
-                target = new WarpTarget(new Vector3(0, 3, 0));
             }
             this.movePlayerToTarget(this.player, target);
         }));
@@ -154,12 +184,12 @@ public class BasicSceneSwitchHandler : MonoBehaviour
         }
         SceneManager.SetActiveScene(targetScene);
         SceneManager.UnloadSceneAsync(currentScene);
-        this.loadScene(targetScene);
+        this.loadSceneObjects(targetScene);
     }
     /**
      * load the custom stuff that we need for a given scene, like gameobjects or components
      */
-    protected void loadScene(Scene scene) {
+    protected void loadSceneObjects(Scene scene) {
         if (scene.name == "bigHouse") {
             this.tmpCreateBigHouseScene();
         }
