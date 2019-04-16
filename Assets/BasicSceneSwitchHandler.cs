@@ -5,64 +5,99 @@ using UnityEngine.SceneManagement;
 
 public class BasicSceneSwitchHandler : MonoBehaviour
 {
+    public static string GLOBAL_COMPONENTS_HANDLER_NAME = "global components handler";
     GameObject globalComponentsHandler;
+    GameObject player;
     List<GameObject> warpPads = new List<GameObject>();
     GameObject warpPadTemplate;
+
+    /**
+     * did the init() function run already?
+     */
+    bool inited = false;
     void Start()
     {
-        globalComponentsHandler = createGlobalComponentsHandler();
-        this.warpPadTemplate = loadGameObjectFromResource("warppad/warppad");
+        /**
+         * this was probably already ran by warpToZone() but it doesn't hurt to run it here, just in case
+         */
+        this.init();
+        this.warpPadTemplate = this.loadGameObjectFromResource("warppad/warppad");
         this.warpPadTemplate.transform.localScale = new Vector3(2.5f, 2.5f, 2.5f);
-        placeWarppad();
+        this.placeWarppad();
     }
 
-    GameObject createGlobalComponentsHandler() {
-        return new GameObject("global components handler", new System.Type[] {
-            typeof(FPSDisplay),
-            typeof(BasicEnemySpawner),
-            typeof(EnemyHpTopbarDisplay),
-            typeof(BasicMapGenerator)
-        });
+    void init() {
+        if (this.inited) {
+            return;
+        }
+        this.inited = true;
+        this.globalComponentsHandler = this.attachGlobalComponents(this.gameObject);
+        this.player = createPlayer();
+    }
 
+    protected GameObject attachGlobalComponents(GameObject globalComponentsHandler) {
+        globalComponentsHandler.AddComponent(typeof(FPSDisplay));
+        globalComponentsHandler.AddComponent(typeof(EnemyHpTopbarDisplay));
+        return globalComponentsHandler;
+    }
+
+    protected void tmpCreateBigHouseScene() {
+        GameObject bigHouse = Instantiate(loadGameObjectFromResource("big_house/big_house"), new Vector3(0, 0, 0), Quaternion.identity);
+        bigHouse.transform.eulerAngles = new Vector3(0, 90, 0);
+    }
+
+    protected void tmpCreateSampleScene(){
+        new GameObject("local map related stuff", new System.Type[]{
+            typeof(BasicMapGenerator),
+            typeof(BasicEnemySpawner),
+        });
+    }
+
+    public GameObject getPlayer() {
+        return this.player;
     }
 
     void placeWarppad() {
         warpPads.Add(Instantiate (warpPadTemplate, new Vector3(-10, 0, -10), Quaternion.identity));
     }
 
-    Scene createOrFindSceneByName(string name) {
+    IEnumerator createOrLoadSceneByName(string name, System.Action<Scene> resultCallback) {
+        AsyncOperation asyncLoad = null;
+        try {
+            asyncLoad = SceneManager.LoadSceneAsync(name);
+            asyncLoad.allowSceneActivation = false;
+        } catch (System.Exception e) {
+            Debug.Log("foo");
+        }
+        if (asyncLoad != null) {
+            while (!asyncLoad.isDone && asyncLoad.progress < 0.9f)
+            {
+                yield return null;
+            }
+        }
         Scene ret = SceneManager.GetSceneByName(name);
         if (!ret.IsValid()){
             ret = SceneManager.CreateScene(name);
         }
-        return ret;
+        resultCallback(ret);
+        yield return null;
     }
+    /**
+     * create the player GameObject which (for now) will be persistent in all scenes
+     */
+    GameObject createPlayer() {
+        GameObject ret = Instantiate(loadGameObjectFromResource("player"), new Vector3(0, 0, 0), Quaternion.identity);
+        Object.DontDestroyOnLoad(ret);
 
-    public void teleportToBigHouse() {
-        Scene scene = createOrFindSceneByName("bigHouse");
-
-        GameObject player = GameObject.Find("Player");
-        GameObject global = GameObject.Find("global components handler");
-        global.GetComponent<BasicEnemySpawner>().removeAllEnemies();
-
-        Object.DontDestroyOnLoad(player);
-        Object.DontDestroyOnLoad(global);
-        SceneManager.MoveGameObjectToScene(global, scene);
-        SceneManager.MoveGameObjectToScene(player, scene);
-        Scene previousScene = SceneManager.GetActiveScene();
-        SceneManager.SetActiveScene(scene);
-        SceneManager.UnloadSceneAsync(previousScene);
-
-
-        GameObject bigHouse = Instantiate(loadGameObjectFromResource("big_house/big_house"), new Vector3(0, 0, 0), Quaternion.identity);
-        bigHouse.transform.eulerAngles = new Vector3(0, 90, 0);
+        ret.AddComponent(typeof(PlayerInteractions));
 
         GameObject lampObj = new GameObject("Lamp");
-        lampObj.transform.parent = player.transform;
+        lampObj.transform.parent = ret.transform;
         lampObj.transform.localPosition = new Vector3(0,0,0);
         Light light = lampObj.AddComponent<Light>();
         light.type = LightType.Spot;
         light.range = 30.0f;
+        return ret;
     }
 
     public List<string> getZones() {
@@ -73,28 +108,64 @@ public class BasicSceneSwitchHandler : MonoBehaviour
     }
 
     public void onWarpPadClick(GameObject warpPad) {
-        teleportToBigHouse();
+        Scene currentScene = SceneManager.GetActiveScene();
+
+        if (currentScene.name != "bigHouse") {
+            warpToZone("bigHouse");
+        } else {
+            warpToZone("SampleScene");
+        }
     }
 
     public void warpToZone(string zoneName, WarpTarget target = null){
         if (!getZones().Contains(zoneName)) {
             throw new System.ArgumentException(System.String.Format("invalid zoneName ({0})", zoneName), "zoneName");
         }
+        this.init();
         Scene currentScene = SceneManager.GetActiveScene();
-        Scene targetScene = createOrFindSceneByName(zoneName);
-        if (!currentScene.Equals(targetScene)){
+        StartCoroutine(createOrLoadSceneByName(zoneName, delegate(Scene scene) {
+            Scene targetScene = scene;
+            if (!currentScene.Equals(targetScene)){
+                this.switchScenes(currentScene, targetScene);
+            } else {
 
-        }
+            }
+            if (target == null) {
+                target = new WarpTarget(new Vector3(0, 3, 0));
+            }
+            this.movePlayerToTarget(this.player, target);
+        }));
+    }
+
+    protected void movePlayerToTarget(GameObject player, WarpTarget target) {
+        player.transform.position = target.getTargetCoordinates();
     }
 
     protected void switchScenes(Scene currentScene, Scene targetScene) {
-        GameObject player = GameObject.Find("Player");
-        GameObject global = GameObject.Find("global components handler");
-
-        Object.DontDestroyOnLoad(player);
-        Object.DontDestroyOnLoad(global);
-        SceneManager.MoveGameObjectToScene(global, targetScene);
-        SceneManager.MoveGameObjectToScene(player, targetScene);
+        if (globalComponentsHandler != null) {
+            BasicEnemySpawner spawner = globalComponentsHandler.GetComponent<BasicEnemySpawner>();
+            if (spawner != null) {
+                spawner.removeAllEnemies();
+            }
+            SceneManager.MoveGameObjectToScene(globalComponentsHandler, targetScene);
+        }
+        if (player != null) {
+            SceneManager.MoveGameObjectToScene(player, targetScene);
+        }
+        SceneManager.SetActiveScene(targetScene);
+        SceneManager.UnloadSceneAsync(currentScene);
+        this.loadScene(targetScene);
+    }
+    /**
+     * load the custom stuff that we need for a given scene, like gameobjects or components
+     */
+    protected void loadScene(Scene scene) {
+        if (scene.name == "bigHouse") {
+            this.tmpCreateBigHouseScene();
+        }
+        if (scene.name == "SampleScene") {
+            this.tmpCreateSampleScene();
+        }
     }
 
     GameObject loadGameObjectFromResource(string resourceName){
