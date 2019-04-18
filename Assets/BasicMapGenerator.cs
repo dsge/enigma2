@@ -20,11 +20,11 @@ public class BasicMapGenerator : MonoBehaviour
 
     List<GameObject> initMapParts() {
         List<GameObject> ret = new List<GameObject>();
-        ret.Add(initMapPart("MapPart_01"));
-        ret.Add(initMapPart("MapPart_02"));
-        ret.Add(initMapPart("MapPart_03"));
-        ret.Add(initMapPart("MapPart_04"));
-        ret.Add(initMapPart("MapPart_05"));
+        ret.Add(initMapPart("basicMapParts/MapPart_01"));
+        ret.Add(initMapPart("basicMapParts/MapPart_02"));
+        ret.Add(initMapPart("basicMapParts/MapPart_03"));
+        ret.Add(initMapPart("basicMapParts/MapPart_04"));
+        ret.Add(initMapPart("basicMapParts/MapPart_05"));
         return ret;
     }
 
