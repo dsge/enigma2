@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.AI;
 
 public class BasicSceneSwitchHandler : MonoBehaviour
 {
@@ -184,6 +185,7 @@ public class BasicSceneSwitchHandler : MonoBehaviour
         }
         SceneManager.SetActiveScene(targetScene);
         SceneManager.UnloadSceneAsync(currentScene);
+        NavMesh.RemoveAllNavMeshData();
         this.loadSceneObjects(targetScene);
     }
     /**
