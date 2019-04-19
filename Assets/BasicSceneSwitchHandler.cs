@@ -117,7 +117,7 @@ public class BasicSceneSwitchHandler : MonoBehaviour
      * create the player GameObject which (for now) will be persistent in all scenes
      */
     GameObject createPlayer() {
-        GameObject ret = Instantiate(loadGameObjectFromResource("player"), new Vector3(0, 0, 0), Quaternion.identity);
+        GameObject ret = Instantiate(loadGameObjectFromResource("player/Player"), new Vector3(0, 0, 0), Quaternion.identity);
         Object.DontDestroyOnLoad(ret);
 
         ret.AddComponent(typeof(PlayerInteractions));
