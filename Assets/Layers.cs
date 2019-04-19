@@ -12,4 +12,9 @@ class Layers {
      */
     public const int WARPPADS = 1 << 11;
     public const int WARPPADS_ID = 11;
+    /**
+     * bitmask for the player that we are currently playing as (in the middle of the screen) - do NOT use this for other players who
+     * just happen to be on screen
+     */
+    public const int CURRENT_PLAYER = 1 << 12;
 }
