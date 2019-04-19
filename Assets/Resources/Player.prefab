@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 2020286871182457025}
   - component: {fileID: 7291173622716676929}
   - component: {fileID: 4711188944954083519}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: playerCharacter
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -105,7 +105,7 @@ GameObject:
   - component: {fileID: 4873783326770310310}
   - component: {fileID: 4873783326770310311}
   - component: {fileID: 4873783326770310307}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: "Main\x13Camera"
   m_TagString: MainCamera
   m_Icon: {fileID: 0}
@@ -253,7 +253,7 @@ GameObject:
   - component: {fileID: 7574967214456610680}
   - component: {fileID: 4586449557326926331}
   - component: {fileID: 4258855980518063013}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: Weapon
   m_TagString: Untagged
   m_Icon: {fileID: 0}

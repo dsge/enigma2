@@ -124,10 +124,11 @@ public class BasicSceneSwitchHandler : MonoBehaviour
 
         GameObject lampObj = new GameObject("Lamp");
         lampObj.transform.parent = ret.transform;
-        lampObj.transform.localPosition = new Vector3(0,0,0);
+        lampObj.transform.localPosition = new Vector3(0,1.5f,0);
         Light light = lampObj.AddComponent<Light>();
-        light.type = LightType.Spot;
+        light.type = LightType.Point;
         light.range = 30.0f;
+        light.cullingMask &= ~Layers.CURRENT_PLAYER; //everything, except current_player
         return ret;
     }
 
