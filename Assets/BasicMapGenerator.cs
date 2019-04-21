@@ -43,7 +43,7 @@ public class BasicMapGenerator : MonoBehaviour
         /**
          * the edge of the map from the center of the world
          */
-        Vector3 mapOffsetFromCenter = new Vector3(-35, 0, 0);
+        Vector3 mapOffsetFromCenter = new Vector3(1, 0, 0);
 
         List<NavMeshBuildSource> allNavMeshSources = new List<NavMeshBuildSource>();
 
