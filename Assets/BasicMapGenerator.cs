@@ -6,7 +6,7 @@ using UnityEngine.AI;
 public class BasicMapGenerator : MonoBehaviour
 {
     /**
-     * the generated map (a collection of map parts)
+     * the generated map
      */
     List<GameObject> map;
 

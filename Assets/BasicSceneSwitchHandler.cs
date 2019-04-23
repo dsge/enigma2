@@ -11,7 +11,7 @@ public class BasicSceneSwitchHandler : MonoBehaviour
     GameObject player;
     GameObject warpPadTemplate;
 
-    List<WorldZone> zones;
+    List<BasicMap> maps = new List<BasicMap>();
 
     /**
      * did the init() function run already?
@@ -25,54 +25,32 @@ public class BasicSceneSwitchHandler : MonoBehaviour
         this.init();
     }
 
-    void init() {
+    public BasicSceneSwitchHandler init() {
         if (this.inited) {
-            return;
+            return this;
         }
         this.inited = true;
         this.globalComponentsHandler = this.attachGlobalComponents(this.gameObject);
         this.player = createPlayer();
 
+        this
+            .registerMap(new BigHouseMap())
+            .registerMap(new SampleSceneMap());
+
         this.warpPadTemplate = this.loadGameObjectFromResource("warppad/warppad");
         this.warpPadTemplate.transform.localScale = new Vector3(2.5f, 2.5f, 2.5f);
+        return this;
+    }
+
+    protected BasicSceneSwitchHandler registerMap(BasicMap map) {
+        this.maps.Add(map);
+        return this;
     }
 
     protected GameObject attachGlobalComponents(GameObject globalComponentsHandler) {
         globalComponentsHandler.AddComponent(typeof(FPSDisplay));
         globalComponentsHandler.AddComponent(typeof(EnemyHpTopbarDisplay));
         return globalComponentsHandler;
-    }
-
-    protected void tmpCreateBigHouseScene() {
-        GameObject bigHouse = Instantiate(loadGameObjectFromResource("big_house/big_house"), new Vector3(0, 0, 0), Quaternion.identity);
-        bigHouse.transform.eulerAngles = new Vector3(0, 90, 0);
-
-        List<WorldZone> zones = this.getZones();
-
-        (Instantiate(this.warpPadTemplate, new Vector3(-10, 0, -10), Quaternion.identity)
-            .AddComponent(typeof(WarpPadWarpTargetHandler)) as WarpPadWarpTargetHandler)
-            .warpTarget = new WarpTarget(zones[1], new Vector3(0, 1.5f, 0));
-    }
-
-    protected void tmpCreateSampleScene(){
-        new GameObject("local map related stuff", new System.Type[]{
-            typeof(BasicMapGenerator),
-            typeof(BasicEnemySpawner),
-        });
-
-        List<WorldZone> zones = this.getZones();
-
-        (Instantiate(this.warpPadTemplate, new Vector3(-10, 0, -10), Quaternion.identity)
-            .AddComponent(typeof(WarpPadWarpTargetHandler)) as WarpPadWarpTargetHandler)
-            .warpTarget = new WarpTarget(zones[0], new Vector3(0, 1.5f, 0));
-
-        (Instantiate(this.warpPadTemplate, new Vector3(15, 0, -15), Quaternion.identity)
-            .AddComponent(typeof(WarpPadWarpTargetHandler)) as WarpPadWarpTargetHandler)
-            .warpTarget = new WarpTarget(zones[1], new Vector3(5, 0, -15));
-
-        (Instantiate(this.warpPadTemplate, new Vector3(5, 0, -15), Quaternion.identity)
-            .AddComponent(typeof(WarpPadWarpTargetHandler)) as WarpPadWarpTargetHandler)
-            .warpTarget = new WarpTarget(zones[1], new Vector3(15, 0, -15));
     }
 
     public GameObject getPlayer() {
@@ -132,13 +110,16 @@ public class BasicSceneSwitchHandler : MonoBehaviour
         return ret;
     }
 
-    public List<WorldZone> getZones() {
-        if (this.zones == null) {
-            this.zones = new List<WorldZone>();
-            this.zones.Add(new WorldZone("bigHouse"));
-            this.zones.Add(new WorldZone("SampleScene"));
+    public List<BasicMap> getMaps() {
+        return this.maps;
+    }
+
+    protected List<WorldZone> getZones() {
+        List<WorldZone> ret = new List<WorldZone>();
+        foreach (var map in this.maps) {
+            ret.AddRange(map.getProvidedZones());
         }
-        return this.zones;
+        return ret;
     }
 
     public void onWarpPadClick(GameObject warpPad) {
@@ -153,7 +134,7 @@ public class BasicSceneSwitchHandler : MonoBehaviour
     }
 
     public void warpToZone(WarpTarget target){
-        if (!getZones().Contains(target.getZone())) {
+        if (!this.getZones().Contains(target.getZone())) {
             throw new System.ArgumentException(System.String.Format("invalid zoneName ({0})", target.getZone().sceneName), "zoneName");
         }
         this.init();
@@ -161,7 +142,7 @@ public class BasicSceneSwitchHandler : MonoBehaviour
         StartCoroutine(createOrLoadSceneByName(target.getZone().sceneName, delegate(Scene scene) {
             Scene targetScene = scene;
             if (!currentScene.Equals(targetScene)){
-                this.switchScenes(currentScene, targetScene);
+                this.switchScenes(currentScene, targetScene, target);
             } else {
 
             }
@@ -173,7 +154,7 @@ public class BasicSceneSwitchHandler : MonoBehaviour
         player.transform.position = target.getTargetCoordinates();
     }
 
-    protected void switchScenes(Scene currentScene, Scene targetScene) {
+    protected void switchScenes(Scene currentScene, Scene targetScene, WarpTarget target) {
         if (globalComponentsHandler != null) {
             BasicEnemySpawner spawner = globalComponentsHandler.GetComponent<BasicEnemySpawner>();
             if (spawner != null) {
@@ -187,18 +168,13 @@ public class BasicSceneSwitchHandler : MonoBehaviour
         SceneManager.SetActiveScene(targetScene);
         SceneManager.UnloadSceneAsync(currentScene);
         NavMesh.RemoveAllNavMeshData();
-        this.loadSceneObjects(targetScene);
+        this.loadSceneObjects(targetScene, target);
     }
     /**
      * load the custom stuff that we need for a given scene, like gameobjects or components
      */
-    protected void loadSceneObjects(Scene scene) {
-        if (scene.name == "bigHouse") {
-            this.tmpCreateBigHouseScene();
-        }
-        if (scene.name == "SampleScene") {
-            this.tmpCreateSampleScene();
-        }
+    protected void loadSceneObjects(Scene scene, WarpTarget target) {
+        target.getZone().map.initializeScene();
     }
 
     GameObject loadGameObjectFromResource(string resourceName){
