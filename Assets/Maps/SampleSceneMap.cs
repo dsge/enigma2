@@ -17,7 +17,7 @@ public class SampleSceneMap : BasicMap{
     public override List<WorldZone> getProvidedZones(){
         if (this.zones == null) {
             this.zones = new List<WorldZone>();
-            this.zones.Add(new WorldZone("bigHouse", this));
+            this.zones.Add(new WorldZone("SampleScene", this));
         }
         return this.zones;
     }
@@ -28,16 +28,18 @@ public class SampleSceneMap : BasicMap{
             typeof(BasicEnemySpawner),
         });
 
-        /*(Instantiate(this.warpPadTemplate, new Vector3(-10, 0, -10), Quaternion.identity)
-            .AddComponent(typeof(WarpPadWarpTargetHandler)) as WarpPadWarpTargetHandler)
-            .warpTarget = new WarpTarget(zones[0], new Vector3(0, 1.5f, 0));
+        BasicSceneSwitchHandler handler = GameObject.Find(BasicSceneSwitchHandler.GLOBAL_COMPONENTS_HANDLER_NAME).GetComponent<BasicSceneSwitchHandler>();
 
-        (Instantiate(this.warpPadTemplate, new Vector3(15, 0, -15), Quaternion.identity)
+        (GameObject.Instantiate(handler.warpPadTemplate, new Vector3(-10, 0, -10), Quaternion.identity)
             .AddComponent(typeof(WarpPadWarpTargetHandler)) as WarpPadWarpTargetHandler)
-            .warpTarget = new WarpTarget(zones[1], new Vector3(5, 0, -15));
+            .warpTarget = new WarpTarget(handler.getMaps()[0].getProvidedZones()[0], new Vector3(0, 1.5f, 0));
 
-        (Instantiate(this.warpPadTemplate, new Vector3(5, 0, -15), Quaternion.identity)
+        (GameObject.Instantiate(handler.warpPadTemplate, new Vector3(15, 0, -15), Quaternion.identity)
             .AddComponent(typeof(WarpPadWarpTargetHandler)) as WarpPadWarpTargetHandler)
-            .warpTarget = new WarpTarget(zones[1], new Vector3(15, 0, -15));*/
+            .warpTarget = new WarpTarget(zones[0], new Vector3(5, 0, -15));
+
+        (GameObject.Instantiate(handler.warpPadTemplate, new Vector3(5, 0, -15), Quaternion.identity)
+            .AddComponent(typeof(WarpPadWarpTargetHandler)) as WarpPadWarpTargetHandler)
+            .warpTarget = new WarpTarget(zones[0], new Vector3(15, 0, -15));
     }
 }

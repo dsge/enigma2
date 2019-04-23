@@ -9,7 +9,7 @@ public class BasicSceneSwitchHandler : MonoBehaviour
     public static string GLOBAL_COMPONENTS_HANDLER_NAME = "global components handler";
     GameObject globalComponentsHandler;
     GameObject player;
-    GameObject warpPadTemplate;
+    public GameObject warpPadTemplate;
 
     List<BasicMap> maps = new List<BasicMap>();
 

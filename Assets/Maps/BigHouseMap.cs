@@ -26,8 +26,12 @@ public class BigHouseMap : BasicMap{
         GameObject bigHouse = GameObject.Instantiate(this.loadGameObjectFromResource("big_house/big_house"), new Vector3(0, 0, 0), Quaternion.identity);
         bigHouse.transform.eulerAngles = new Vector3(0, 90, 0);
 
-        /*(GameObject.Instantiate(this.warpPadTemplate, new Vector3(-10, 0, -10), Quaternion.identity)
+        BasicSceneSwitchHandler handler = GameObject.Find(BasicSceneSwitchHandler.GLOBAL_COMPONENTS_HANDLER_NAME).GetComponent<BasicSceneSwitchHandler>();
+
+        WorldZone targetZone = handler.getMaps()[1].getProvidedZones()[0];
+
+        (GameObject.Instantiate(handler.warpPadTemplate, new Vector3(-10, 0, -10), Quaternion.identity)
             .AddComponent(typeof(WarpPadWarpTargetHandler)) as WarpPadWarpTargetHandler)
-            .warpTarget = new WarpTarget(zones[1], new Vector3(0, 1.5f, 0));*/
+            .warpTarget = new WarpTarget(targetZone, new Vector3(0, 1.5f, 0));
     }
 }
