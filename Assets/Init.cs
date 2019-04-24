@@ -17,7 +17,8 @@ public class Init : MonoBehaviour
          * load the first "map"
          */
         BasicSceneSwitchHandler handler = globalComponentsHandler.GetComponent<BasicSceneSwitchHandler>();
-        handler.warpToZone(new WarpTarget(handler.getZones()[0], new Vector3(0, 1.5f, 0)));
+        handler.init();
+        handler.warpToZone(handler.getMaps()[0].getDefaultWarpTarget());
     }
     /**
      * Creates a global gameobject that will be persistent across scenes to hold global Components

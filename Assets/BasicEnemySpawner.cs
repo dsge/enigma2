@@ -8,7 +8,7 @@ public class BasicEnemySpawner : MonoBehaviour
     protected List<GameObject> spawnedEnemies = new List<GameObject>();
     void Start()
     {
-        spawnDefaultEnemies();
+        // spawnDefaultEnemies();
     }
 
     protected void spawnDefaultEnemies() {
