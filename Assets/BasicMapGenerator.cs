@@ -3,41 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class BasicMapGenerator : MonoBehaviour
+public class BasicMapGenerator
 {
-    /**
-     * the generated map
-     */
-    List<GameObject> map;
-
-    void Start()
-    {
-        this.map = generateMap(initMapParts(), new Vector2(5, 5));
-    }
-
-    public List<GameObject> getMap() {
-        return this.map;
-    }
-
-    List<GameObject> initMapParts() {
-        List<GameObject> ret = new List<GameObject>();
-        ret.Add(initMapPart("basicMapParts/MapPart_01"));
-        ret.Add(initMapPart("basicMapParts/MapPart_02"));
-        ret.Add(initMapPart("basicMapParts/MapPart_03"));
-        ret.Add(initMapPart("basicMapParts/MapPart_04"));
-        ret.Add(initMapPart("basicMapParts/MapPart_05"));
-        return ret;
-    }
-
-    GameObject initMapPart(string resourceName){
-        GameObject ret = Resources.Load(resourceName) as GameObject;
-        if (ret == null) {
-            throw new System.ArgumentException(System.String.Format("unable to load resource ({0})", resourceName), "resourceName");
-        }
-        return ret;
-    }
-
-    List<GameObject> generateMap(List<GameObject> mapPartTemplates, Vector2 mapSize){
+    public List<GameObject> generateMap(List<GameObject> mapPartTemplates, Vector2 mapSize){
         System.Random rnd = new System.Random();
         List<GameObject> ret = new List<GameObject>();
         /**
@@ -61,7 +29,7 @@ public class BasicMapGenerator : MonoBehaviour
                  * we will place it at the next spot in our map
                  */
                 Vector3 position = new Vector3(-i * prefabBoundsSize.x, 0, -j * prefabBoundsSize.z) + mapOffsetFromCenter;
-                GameObject part = Instantiate (prefab, position, Quaternion.identity);
+                GameObject part = GameObject.Instantiate (prefab, position, Quaternion.identity);
                 /**
                  * collect the navmesh sources from this mapPart
                  */
@@ -106,7 +74,7 @@ public class BasicMapGenerator : MonoBehaviour
 
     NavMeshData createNavMeshData(List<NavMeshBuildSource> sources){
         Bounds b = new Bounds(Vector3.zero, Vector3.zero);
-        foreach (Renderer r in FindObjectsOfType(typeof(Renderer))) {
+        foreach (Renderer r in GameObject.FindObjectsOfType(typeof(Renderer))) {
             b.Encapsulate(r.bounds);
         }
         return NavMeshBuilder.BuildNavMeshData(NavMesh.GetSettingsByID(0), sources, b, Vector3.zero, Quaternion.identity);

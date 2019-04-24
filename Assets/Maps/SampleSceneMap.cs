@@ -24,9 +24,17 @@ public class SampleSceneMap : BasicMap{
 
     public override void initializeScene(){
         new GameObject("local map related stuff", new System.Type[]{
-            typeof(BasicMapGenerator),
             typeof(BasicEnemySpawner),
         });
+
+        BasicMapGenerator mapGenerator = new BasicMapGenerator();
+        List<GameObject> mapPartTemplates = new List<GameObject>();
+        mapPartTemplates.Add(loadResource("basicMapParts/MapPart_01"));
+        mapPartTemplates.Add(loadResource("basicMapParts/MapPart_02"));
+        mapPartTemplates.Add(loadResource("basicMapParts/MapPart_03"));
+        mapPartTemplates.Add(loadResource("basicMapParts/MapPart_04"));
+        mapPartTemplates.Add(loadResource("basicMapParts/MapPart_05"));
+        List<GameObject> map = mapGenerator.generateMap(mapPartTemplates, new Vector2(5, 5));
 
         BasicSceneSwitchHandler handler = GameObject.Find(BasicSceneSwitchHandler.GLOBAL_COMPONENTS_HANDLER_NAME).GetComponent<BasicSceneSwitchHandler>();
 
@@ -41,5 +49,13 @@ public class SampleSceneMap : BasicMap{
         (GameObject.Instantiate(handler.warpPadTemplate, new Vector3(5, 0, -15), Quaternion.identity)
             .AddComponent(typeof(WarpPadWarpTargetHandler)) as WarpPadWarpTargetHandler)
             .warpTarget = new WarpTarget(zones[0], new Vector3(15, 0, -15));
+    }
+
+    protected GameObject loadResource(string resourceName) {
+        GameObject ret = Resources.Load(resourceName) as GameObject;
+        if (ret == null) {
+            throw new System.ArgumentException(System.String.Format("unable to load resource ({0})", resourceName), "resourceName");
+        }
+        return ret;
     }
 }
