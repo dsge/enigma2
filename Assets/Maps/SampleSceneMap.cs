@@ -34,6 +34,7 @@ public class SampleSceneMap : BasicMap{
         mapPartTemplates.Add(loadResource("basicMapParts/MapPart_03"));
         mapPartTemplates.Add(loadResource("basicMapParts/MapPart_04"));
         mapPartTemplates.Add(loadResource("basicMapParts/MapPart_05"));
+        mapPartTemplates.Add(loadResource("basicMapParts/MapPart_13_TwoEnterance"));
         List<GameObject> map = mapGenerator.generateMap(mapPartTemplates, new Vector2(5, 5));
 
         BasicSceneSwitchHandler handler = GameObject.Find(BasicSceneSwitchHandler.GLOBAL_COMPONENTS_HANDLER_NAME).GetComponent<BasicSceneSwitchHandler>();
